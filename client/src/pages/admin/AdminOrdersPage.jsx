@@ -78,48 +78,48 @@ export default function AdminOrdersPage() {
   const rows = orders.map((order) => ({
     id: order.id,
     cells: [
-      <span className="font-mono text-sm font-medium">{order.order_number}</span>,
-      <span>{order.user?.first_name} {order.user?.last_name}</span>,
-      <span>{order.package?.[`name_${lang}`] || order.package?.name_es || '-'}</span>,
-      <span className="font-semibold">{formatCurrency(order.total_amount, order.currency)}</span>,
+      <span className="font-mono text-sm font-medium text-slate-800">{order.order_number}</span>,
+      <span className="text-slate-700">{order.user?.first_name} {order.user?.last_name}</span>,
+      <span className="text-slate-600">{order.package?.[`name_${lang}`] || order.package?.name_es || '-'}</span>,
+      <span className="font-semibold text-slate-800">{formatCurrency(order.total_amount, order.currency)}</span>,
       <Badge status={order.status} />,
-      <span className="text-gray-500 text-sm">{formatDate(order.created_at)}</span>,
+      <span className="text-slate-500 text-sm">{formatDate(order.created_at)}</span>,
     ],
   }));
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-text-dark mb-6">
+      <h1 className="font-display text-xl sm:text-2xl font-bold text-slate-800 mb-6">
         {t('admin.orders.title')}
       </h1>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
-        <form onSubmit={handleSearch} className="flex flex-wrap items-end gap-4">
-          <div className="flex-1 min-w-[200px]">
-            <label className="block text-xs font-medium text-gray-500 mb-1">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-card p-4 sm:p-5 mb-6">
+        <form onSubmit={handleSearch} className="flex flex-wrap items-end gap-3 sm:gap-4">
+          <div className="flex-1 min-w-[180px]">
+            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1.5">
               {t('common.search')}
             </label>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 type="text"
                 placeholder={t('admin.orders.searchPlaceholder')}
                 value={filters.search}
                 onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none"
+                className="w-full pl-9 pr-3 py-2.5 sm:py-2 text-sm rounded-lg border border-slate-200 hover:border-slate-300 focus:border-mint-500 focus:ring-2 focus:ring-mint-500/25 outline-none transition-all duration-200 bg-white text-slate-800 placeholder:text-slate-400"
               />
             </div>
           </div>
 
-          <div className="w-44">
-            <label className="block text-xs font-medium text-gray-500 mb-1">
+          <div className="w-full sm:w-40">
+            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1.5">
               {t('admin.orders.statusFilter')}
             </label>
             <select
               value={filters.status}
               onChange={(e) => setFilters({ ...filters, status: e.target.value, page: 1 })}
-              className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none cursor-pointer"
+              className="w-full px-3 py-2.5 sm:py-2 text-sm rounded-lg border border-slate-200 hover:border-slate-300 focus:border-mint-500 focus:ring-2 focus:ring-mint-500/25 outline-none cursor-pointer transition-all duration-200 bg-white text-slate-800"
             >
               <option value="">{t('admin.orders.allStatuses')}</option>
               {ORDER_STATUSES.map((s) => (
@@ -128,39 +128,39 @@ export default function AdminOrdersPage() {
             </select>
           </div>
 
-          <div className="w-36">
-            <label className="block text-xs font-medium text-gray-500 mb-1">
+          <div className="w-full sm:w-36">
+            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1.5">
               {t('admin.orders.dateFrom')}
             </label>
             <input
               type="date"
               value={filters.dateFrom}
               onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })}
-              className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none"
+              className="w-full px-3 py-2.5 sm:py-2 text-sm rounded-lg border border-slate-200 hover:border-slate-300 focus:border-mint-500 focus:ring-2 focus:ring-mint-500/25 outline-none transition-all duration-200 bg-white text-slate-800"
             />
           </div>
 
-          <div className="w-36">
-            <label className="block text-xs font-medium text-gray-500 mb-1">
+          <div className="w-full sm:w-36">
+            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1.5">
               {t('admin.orders.dateTo')}
             </label>
             <input
               type="date"
               value={filters.dateTo}
               onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })}
-              className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none"
+              className="w-full px-3 py-2.5 sm:py-2 text-sm rounded-lg border border-slate-200 hover:border-slate-300 focus:border-mint-500 focus:ring-2 focus:ring-mint-500/25 outline-none transition-all duration-200 bg-white text-slate-800"
             />
           </div>
 
           <div className="flex gap-2">
-            <Button type="submit" size="sm" className="gap-1">
+            <Button type="submit" size="sm" className="gap-1.5">
               <Filter className="w-4 h-4" />
               {t('common.filter')}
             </Button>
             <button
               type="button"
               onClick={clearFilters}
-              className="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+              className="p-2.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-mint-500"
             >
               <X className="w-4 h-4" />
             </button>
@@ -169,7 +169,7 @@ export default function AdminOrdersPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-card overflow-hidden">
         {loading ? (
           <div className="flex justify-center py-12">
             <Spinner size="lg" />

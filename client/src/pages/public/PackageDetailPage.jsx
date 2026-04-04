@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Check, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, CheckCircle, ShoppingCart } from 'lucide-react';
 import { getPackageById } from '../../services/packages.service';
 import { formatCurrency } from '../../utils/constants';
 import { useAuth } from '../../context/AuthContext';
@@ -50,8 +50,11 @@ export default function PackageDetailPage() {
 
   if (!pkg) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-16 text-center">
-        <p className="text-gray-500 text-lg mb-6">{t('packageDetail.notFound')}</p>
+      <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+        <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mb-4 mx-auto">
+          <ShoppingCart className="w-8 h-8 text-slate-400" />
+        </div>
+        <p className="text-slate-500 text-lg mb-6 font-body">{t('packageDetail.notFound')}</p>
         <Link to="/packages">
           <Button variant="secondary">{t('packageDetail.backToCatalog')}</Button>
         </Link>
@@ -62,54 +65,48 @@ export default function PackageDetailPage() {
   const includes = pkg[`includes_${lang}`] || pkg.includes_es || [];
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="w-full max-w-[900px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
       <Link
         to="/packages"
-        className="inline-flex items-center gap-2 text-gray-500 hover:text-primary transition-colors mb-8"
+        className="inline-flex items-center gap-2 text-slate-500 hover:text-mint-600 transition-colors mb-8 text-sm font-medium"
       >
         <ArrowLeft className="w-4 h-4" />
         {t('packageDetail.backToCatalog')}
       </Link>
 
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="h-48 bg-gradient-to-br from-primary-light/30 via-primary/10 to-primary-light/20 flex items-center justify-center">
-          <ShoppingCart className="w-20 h-20 text-primary/40" />
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden">
+        {/* Header gradient */}
+        <div className="bg-gradient-to-br from-mint-400 to-mint-600 px-6 sm:px-8 py-8 sm:py-10">
+          <h1 className="font-display text-2xl sm:text-3xl font-bold text-white mb-3">
+            {pkg[`name_${lang}`] || pkg.name_es}
+          </h1>
+          <div className="flex items-baseline gap-2">
+            <span className="text-4xl sm:text-5xl font-bold text-white">
+              {formatCurrency(pkg.price, pkg.currency)}
+            </span>
+          </div>
         </div>
 
-        <div className="p-8">
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
-            <h1 className="text-3xl font-bold text-text-dark">
-              {pkg[`name_${lang}`] || pkg.name_es}
-            </h1>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500">{t('packageDetail.price')}</span>
-              <span className="text-3xl font-bold text-primary">
-                {formatCurrency(pkg.price, pkg.currency)}
-              </span>
-            </div>
-          </div>
-
-          <p className="text-gray-600 leading-relaxed mb-8">
+        <div className="p-6 sm:p-8">
+          <p className="text-slate-600 text-base leading-relaxed mb-8 font-body">
             {pkg[`description_${lang}`] || pkg.description_es}
           </p>
 
           <div className="mb-8">
-            <h3 className="text-xl font-semibold text-text-dark mb-4">
+            <h3 className="font-display text-lg sm:text-xl font-semibold text-slate-800 mb-4">
               {t('packageDetail.includes')}
             </h3>
             <ul className="space-y-3">
               {includes.map((item, idx) => (
                 <li key={idx} className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Check className="w-3.5 h-3.5 text-primary" />
-                  </div>
-                  <span className="text-gray-700">{item}</span>
+                  <CheckCircle className="w-5 h-5 text-mint-500 shrink-0 mt-0.5" />
+                  <span className="text-slate-700 text-sm sm:text-base">{item}</span>
                 </li>
               ))}
             </ul>
           </div>
 
-          <Button onClick={handleBuy} size="lg" className="w-full sm:w-auto gap-2">
+          <Button onClick={handleBuy} size="lg" className="gap-2">
             <ShoppingCart className="w-5 h-5" />
             {t('packageDetail.buyNow')}
           </Button>

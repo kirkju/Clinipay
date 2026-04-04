@@ -1,22 +1,30 @@
 import { useTranslation } from 'react-i18next';
 
-const colorMap = {
-  pending_payment: 'bg-amber-100 text-amber-800',
-  paid: 'bg-blue-100 text-blue-800',
-  in_progress: 'bg-purple-100 text-purple-800',
-  completed: 'bg-green-100 text-green-800',
-  cancelled: 'bg-red-100 text-red-800',
+const statusConfig = {
+  pending_payment: { bg: 'bg-warning-100', text: 'text-warning-700', dot: 'bg-warning-500' },
+  paid:            { bg: 'bg-success-100', text: 'text-success-700', dot: 'bg-success-500' },
+  in_progress:     { bg: 'bg-info-100',    text: 'text-info-700',    dot: 'bg-info-500' },
+  completed:       { bg: 'bg-mint-100',    text: 'text-forest-500',  dot: 'bg-mint-500' },
+  cancelled:       { bg: 'bg-error-100',   text: 'text-error-700',   dot: 'bg-error-500' },
 };
 
 export default function Badge({ status, className = '' }) {
   const { t } = useTranslation();
 
-  const colors = colorMap[status] || 'bg-gray-100 text-gray-800';
+  const config = statusConfig[status] || { bg: 'bg-slate-100', text: 'text-slate-700', dot: 'bg-slate-400' };
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colors} ${className}`}
+      className={`
+        inline-flex items-center gap-1.5
+        px-2.5 py-1 rounded-full
+        text-xs font-semibold
+        ${config.bg} ${config.text}
+        transition-colors duration-200
+        ${className}
+      `}
     >
+      <span className={`w-1.5 h-1.5 rounded-full ${config.dot}`} />
       {t(`statuses.${status}`, status)}
     </span>
   );

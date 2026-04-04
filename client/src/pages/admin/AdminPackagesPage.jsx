@@ -137,16 +137,17 @@ export default function AdminPackagesPage() {
   const rows = packages.map((pkg) => ({
     id: pkg.id,
     cells: [
-      <span className="font-medium">{pkg[`name_${lang}`] || pkg.name_es}</span>,
-      <span className="font-semibold">{formatCurrency(pkg.price, pkg.currency)}</span>,
-      <span className="text-gray-500">{pkg.display_order}</span>,
+      <span className="font-medium text-slate-800">{pkg[`name_${lang}`] || pkg.name_es}</span>,
+      <span className="font-semibold text-slate-800">{formatCurrency(pkg.price, pkg.currency)}</span>,
+      <span className="text-slate-500">{pkg.display_order}</span>,
       <span
-        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
           pkg.is_active
-            ? 'bg-green-100 text-green-800'
-            : 'bg-gray-100 text-gray-800'
+            ? 'bg-success-100 text-success-700'
+            : 'bg-slate-100 text-slate-500'
         }`}
       >
+        <span className={`w-1.5 h-1.5 rounded-full ${pkg.is_active ? 'bg-success-500' : 'bg-slate-400'}`} />
         {pkg.is_active ? t('admin.packages.active') : t('admin.packages.inactive')}
       </span>,
       <div className="flex items-center gap-2">
@@ -155,7 +156,7 @@ export default function AdminPackagesPage() {
             e.stopPropagation();
             openEdit(pkg);
           }}
-          className="p-1.5 rounded-lg text-gray-400 hover:text-primary hover:bg-primary/10 transition-colors cursor-pointer"
+          className="p-2.5 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-mint-500"
           title={t('common.edit')}
         >
           <Edit2 className="w-4 h-4" />
@@ -165,13 +166,13 @@ export default function AdminPackagesPage() {
             e.stopPropagation();
             handleToggle(pkg);
           }}
-          className="p-1.5 rounded-lg text-gray-400 hover:text-primary hover:bg-primary/10 transition-colors cursor-pointer"
+          className="p-2.5 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-mint-500"
           title={t('admin.packages.toggleActive')}
         >
           {pkg.is_active ? (
-            <ToggleRight className="w-5 h-5 text-success" />
+            <ToggleRight className="w-5 h-5 text-success-500" />
           ) : (
-            <ToggleLeft className="w-5 h-5 text-gray-400" />
+            <ToggleLeft className="w-5 h-5 text-slate-400" />
           )}
         </button>
       </div>,
@@ -181,16 +182,16 @@ export default function AdminPackagesPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-text-dark">
+        <h1 className="font-display text-xl sm:text-2xl font-bold text-slate-800">
           {t('admin.packages.title')}
         </h1>
-        <Button onClick={openCreate} className="gap-2">
+        <Button onClick={openCreate} size="sm" className="gap-2">
           <Plus className="w-4 h-4" />
           {t('admin.packages.createNew')}
         </Button>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-card overflow-hidden">
         <Table
           headers={headers}
           rows={rows}
@@ -206,7 +207,7 @@ export default function AdminPackagesPage() {
         size="lg"
         footer={
           <>
-            <Button variant="secondary" onClick={() => setShowModal(false)} disabled={saving}>
+            <Button variant="ghost" onClick={() => setShowModal(false)} disabled={saving}>
               {t('common.cancel')}
             </Button>
             <Button onClick={handleSave} loading={saving}>
@@ -232,26 +233,26 @@ export default function AdminPackagesPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-dark mb-1.5">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">
               {t('admin.packages.descriptionEs')}
             </label>
             <textarea
               value={form.description_es}
               onChange={handleChange('description_es')}
               rows={3}
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-text-dark focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none resize-none"
+              className="w-full px-4 py-3 sm:py-2.5 rounded-lg border border-slate-200 text-slate-800 text-sm hover:border-slate-300 focus:border-mint-500 focus:ring-2 focus:ring-mint-500/25 outline-none resize-y min-h-[80px] transition-all duration-200 placeholder:text-slate-400"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-dark mb-1.5">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">
               {t('admin.packages.descriptionEn')}
             </label>
             <textarea
               value={form.description_en}
               onChange={handleChange('description_en')}
               rows={3}
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-text-dark focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none resize-none"
+              className="w-full px-4 py-3 sm:py-2.5 rounded-lg border border-slate-200 text-slate-800 text-sm hover:border-slate-300 focus:border-mint-500 focus:ring-2 focus:ring-mint-500/25 outline-none resize-y min-h-[80px] transition-all duration-200 placeholder:text-slate-400"
             />
           </div>
 
@@ -266,13 +267,13 @@ export default function AdminPackagesPage() {
               step="0.01"
             />
             <div>
-              <label className="block text-sm font-medium text-text-dark mb-1.5">
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
                 {t('admin.packages.currency')}
               </label>
               <select
                 value={form.currency}
                 onChange={handleChange('currency')}
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-text-dark focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none cursor-pointer"
+                className="w-full px-4 py-3 sm:py-2.5 rounded-lg border border-slate-200 text-slate-800 text-sm hover:border-slate-300 focus:border-mint-500 focus:ring-2 focus:ring-mint-500/25 outline-none cursor-pointer transition-all duration-200"
               >
                 <option value="USD">USD</option>
                 <option value="PAB">PAB</option>
@@ -289,26 +290,26 @@ export default function AdminPackagesPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-dark mb-1.5">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">
               {t('admin.packages.includesEs')}
             </label>
             <textarea
               value={form.includes_es}
               onChange={handleChange('includes_es')}
               rows={4}
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-text-dark focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none resize-none font-mono text-sm"
+              className="w-full px-4 py-3 sm:py-2.5 rounded-lg border border-slate-200 text-slate-800 text-sm hover:border-slate-300 focus:border-mint-500 focus:ring-2 focus:ring-mint-500/25 outline-none resize-y min-h-[100px] transition-all duration-200 font-mono placeholder:text-slate-400"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-dark mb-1.5">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">
               {t('admin.packages.includesEn')}
             </label>
             <textarea
               value={form.includes_en}
               onChange={handleChange('includes_en')}
               rows={4}
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-text-dark focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none resize-none font-mono text-sm"
+              className="w-full px-4 py-3 sm:py-2.5 rounded-lg border border-slate-200 text-slate-800 text-sm hover:border-slate-300 focus:border-mint-500 focus:ring-2 focus:ring-mint-500/25 outline-none resize-y min-h-[100px] transition-all duration-200 font-mono placeholder:text-slate-400"
             />
           </div>
         </div>

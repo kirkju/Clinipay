@@ -36,21 +36,23 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md animate-fade-in-up">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-text-dark mb-2">
+          <h1 className="font-display text-[28px] leading-[34px] sm:text-[36px] sm:leading-[42px] font-bold text-slate-800">
             {t('forgotPassword.title')}
           </h1>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-6 sm:p-8">
           {sent ? (
             <div className="text-center py-4">
-              <CheckCircle className="w-16 h-16 text-success mx-auto mb-4" />
-              <h2 className="text-xl font-semibold text-text-dark mb-2">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-success-50 flex items-center justify-center">
+                <CheckCircle className="w-8 h-8 text-success-500" />
+              </div>
+              <h2 className="font-display text-xl font-semibold text-slate-800 mb-2">
                 {t('forgotPassword.successTitle')}
               </h2>
-              <p className="text-gray-500 mb-6">
+              <p className="text-slate-500 text-sm mb-6 font-body">
                 {t('forgotPassword.successMessage')}
               </p>
               <Link to="/login">
@@ -59,7 +61,7 @@ export default function ForgotPasswordPage() {
             </div>
           ) : (
             <>
-              <p className="text-gray-500 text-sm mb-6">
+              <p className="text-slate-500 text-sm mb-6 font-body">
                 {t('forgotPassword.description')}
               </p>
               <form onSubmit={handleSubmit} className="space-y-5">
@@ -80,7 +82,7 @@ export default function ForgotPasswordPage() {
               <div className="mt-6 text-center">
                 <Link
                   to="/login"
-                  className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary-dark transition-colors"
+                  className="inline-flex items-center gap-2 text-sm text-mint-600 hover:text-mint-700 transition-colors font-medium"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   {t('forgotPassword.backToLogin')}

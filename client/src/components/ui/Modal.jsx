@@ -16,39 +16,59 @@ export default function Modal({ isOpen, onClose, title, children, footer, size =
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    function handleEscape(e) {
+      if (e.key === 'Escape') onClose?.();
+    }
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const sizeClasses = {
-    sm: 'max-w-md',
-    md: 'max-w-lg',
-    lg: 'max-w-2xl',
-    xl: 'max-w-4xl',
+    sm: 'sm:max-w-md',
+    md: 'sm:max-w-lg',
+    lg: 'sm:max-w-2xl',
+    xl: 'sm:max-w-4xl',
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in"
+      onClick={onClose}
+    >
       <div
-        className="fixed inset-0 bg-black/50 transition-opacity"
-        onClick={onClose}
-      />
-      <div
-        className={`relative bg-white rounded-xl shadow-2xl w-full ${sizeClasses[size] || sizeClasses.md} max-h-[90vh] flex flex-col`}
+        className={`
+          bg-white w-full ${sizeClasses[size] || sizeClasses.md}
+          sm:mx-4 rounded-t-2xl sm:rounded-2xl
+          shadow-modal
+          animate-fade-in-up sm:animate-scale-in
+          max-h-[90vh] flex flex-col overflow-hidden
+        `}
+        onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-text-dark">{title}</h2>
+        {/* Header */}
+        <div className="flex items-center justify-between p-5 border-b border-slate-100">
+          <h3 className="font-display font-semibold text-lg text-slate-800">
+            {title}
+          </h3>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors cursor-pointer"
             aria-label={t('common.close')}
           >
-            <X className="w-5 h-5" />
+            <X size={20} />
           </button>
         </div>
 
-        <div className="px-6 py-4 overflow-y-auto flex-1">{children}</div>
+        {/* Content */}
+        <div className="p-5 overflow-y-auto flex-1">{children}</div>
 
+        {/* Footer */}
         {footer && (
-          <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+          <div className="flex flex-col sm:flex-row gap-3 sm:justify-end p-5 border-t border-slate-100">
             {footer}
           </div>
         )}

@@ -8,22 +8,23 @@ export default function Toast() {
         duration: 4000,
         style: {
           background: '#FFFFFF',
-          color: '#1A1A2E',
-          borderRadius: '12px',
-          border: '1px solid #e5e7eb',
-          padding: '12px 16px',
+          color: '#1A2A22',
+          borderRadius: '14px',
+          border: '1px solid #E2E8E4',
+          padding: '16px',
           fontSize: '14px',
-          boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+          fontFamily: "'Plus Jakarta Sans', sans-serif",
+          boxShadow: '0 8px 30px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)',
         },
         success: {
           iconTheme: {
-            primary: '#3EB489',
+            primary: '#22C55E',
             secondary: '#FFFFFF',
           },
         },
         error: {
           iconTheme: {
-            primary: '#E74C3C',
+            primary: '#EF4444',
             secondary: '#FFFFFF',
           },
         },

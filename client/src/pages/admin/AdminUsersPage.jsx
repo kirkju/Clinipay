@@ -44,28 +44,32 @@ export default function AdminUsersPage() {
   const rows = users.map((user) => ({
     id: user.id,
     cells: [
-      <span className="font-medium">
+      <span className="font-medium text-slate-800">
         {user.first_name} {user.last_name}
       </span>,
-      <span className="text-gray-600">{user.email}</span>,
-      <span className="text-gray-500 text-sm">{formatDate(user.created_at)}</span>,
-      <span className="font-semibold">{user.order_count ?? 0}</span>,
+      <span className="text-slate-600">{user.email}</span>,
+      <span className="text-slate-500 text-sm">{formatDate(user.created_at)}</span>,
+      <span className="font-semibold text-slate-800">{user.order_count ?? 0}</span>,
     ],
   }));
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-text-dark mb-6">
+      <h1 className="font-display text-xl sm:text-2xl font-bold text-slate-800 mb-6">
         {t('admin.users.title')}
       </h1>
 
       {users.length === 0 ? (
-        <div className="text-center py-16">
-          <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500 text-lg">{t('admin.users.noUsers')}</p>
+        <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+          <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mb-4">
+            <Users className="w-8 h-8 text-slate-400" />
+          </div>
+          <h3 className="font-display font-semibold text-lg text-slate-700 mb-1.5">
+            {t('admin.users.noUsers')}
+          </h3>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-card overflow-hidden">
           <Table headers={headers} rows={rows} />
         </div>
       )}

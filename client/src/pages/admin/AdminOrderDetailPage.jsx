@@ -63,7 +63,7 @@ export default function AdminOrderDetailPage() {
   if (!order) {
     return (
       <div className="text-center py-16">
-        <p className="text-gray-500 text-lg">{t('orderDetail.notFound')}</p>
+        <p className="text-slate-500 text-lg font-body">{t('orderDetail.notFound')}</p>
       </div>
     );
   }
@@ -75,92 +75,92 @@ export default function AdminOrderDetailPage() {
     <div>
       <Link
         to="/admin/orders"
-        className="inline-flex items-center gap-2 text-gray-500 hover:text-primary transition-colors mb-6"
+        className="inline-flex items-center gap-2 text-slate-500 hover:text-mint-600 transition-colors mb-6 text-sm font-medium"
       >
         <ArrowLeft className="w-4 h-4" />
         {t('common.back')}
       </Link>
 
-      <h1 className="text-2xl font-bold text-text-dark mb-6">
+      <h1 className="font-display text-xl sm:text-2xl font-bold text-slate-800 mb-6">
         {t('admin.orderDetail.title')}
       </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Order Info */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-card p-5 sm:p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-1">
+                <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">
                   {t('orderDetail.orderNumber')}
                 </label>
-                <p className="font-mono text-lg font-semibold">{order.order_number}</p>
+                <p className="font-mono text-lg font-semibold text-slate-800">{order.order_number}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-1">
+                <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">
                   {t('orderDetail.status')}
                 </label>
                 <Badge status={order.status} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-1">
+                <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">
                   {t('orderDetail.package')}
                 </label>
-                <p className="text-text-dark font-medium">
+                <p className="text-slate-700 font-medium">
                   {order.package?.[`name_${lang}`] || order.package?.name_es || '-'}
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-1">
+                <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">
                   {t('orderDetail.amount')}
                 </label>
-                <p className="text-2xl font-bold text-primary">
+                <p className="text-2xl font-bold text-mint-600">
                   {formatCurrency(order.total_amount, order.currency)}
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-1">
+                <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">
                   {t('orderDetail.createdAt')}
                 </label>
-                <p className="text-text-dark">{formatDate(order.created_at)}</p>
+                <p className="text-slate-700 text-sm">{formatDate(order.created_at)}</p>
               </div>
               {order.payment_reference && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 mb-1">
+                  <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">
                     {t('orderDetail.paymentRef')}
                   </label>
-                  <p className="font-mono text-text-dark">{order.payment_reference}</p>
+                  <p className="font-mono text-sm text-slate-700">{order.payment_reference}</p>
                 </div>
               )}
             </div>
           </div>
 
           {/* Client Info */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-text-dark mb-4">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-card p-5 sm:p-6">
+            <h3 className="font-display text-base sm:text-lg font-semibold text-slate-800 mb-4">
               {t('admin.orderDetail.clientInfo')}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-1">
+                <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">
                   {t('checkout.name')}
                 </label>
-                <p className="text-text-dark">
+                <p className="text-slate-700 text-sm">
                   {order.user?.first_name} {order.user?.last_name}
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-1">
+                <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">
                   {t('checkout.email')}
                 </label>
-                <p className="text-text-dark">{order.user?.email}</p>
+                <p className="text-slate-700 text-sm">{order.user?.email}</p>
               </div>
               {order.user?.phone && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 mb-1">
+                  <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">
                     {t('checkout.phone')}
                   </label>
-                  <p className="text-text-dark">{order.user.phone}</p>
+                  <p className="text-slate-700 text-sm">{order.user.phone}</p>
                 </div>
               )}
             </div>
@@ -168,28 +168,28 @@ export default function AdminOrderDetailPage() {
 
           {/* Status History */}
           {statusHistory.length > 0 && (
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-text-dark mb-4">
+            <div className="bg-white rounded-xl border border-slate-200 shadow-card p-5 sm:p-6">
+              <h3 className="font-display text-base sm:text-lg font-semibold text-slate-800 mb-4">
                 {t('admin.orderDetail.statusHistory')}
               </h3>
               <div className="space-y-4">
                 {statusHistory.map((entry, idx) => (
                   <div key={idx} className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Clock className="w-4 h-4 text-primary" />
+                    <div className="w-8 h-8 rounded-full bg-mint-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Clock className="w-4 h-4 text-mint-600" />
                     </div>
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <Badge status={entry.status} />
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-slate-400">
                           {formatDate(entry.changed_at || entry.created_at)}
                         </span>
                       </div>
                       {entry.notes && (
-                        <p className="text-sm text-gray-600">{entry.notes}</p>
+                        <p className="text-sm text-slate-600 font-body">{entry.notes}</p>
                       )}
                       {entry.changed_by_name && (
-                        <p className="text-xs text-gray-400 mt-1">
+                        <p className="text-xs text-slate-400 mt-1">
                           {entry.changed_by_name}
                         </p>
                       )}
@@ -203,23 +203,23 @@ export default function AdminOrderDetailPage() {
 
         {/* Update Status Panel */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-xl border border-gray-200 p-6 sticky top-24">
-            <h3 className="text-lg font-semibold text-text-dark mb-4">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-card p-5 sm:p-6 lg:sticky lg:top-24">
+            <h3 className="font-display text-base sm:text-lg font-semibold text-slate-800 mb-4">
               {t('admin.orderDetail.updateStatus')}
             </h3>
 
             {validTransitions.length === 0 ? (
-              <p className="text-sm text-gray-500">{t('common.noResults')}</p>
+              <p className="text-sm text-slate-500 font-body">{t('common.noResults')}</p>
             ) : (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 mb-1.5">
+                  <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1.5">
                     {t('admin.orderDetail.newStatus')}
                   </label>
                   <select
                     value={newStatus}
                     onChange={(e) => setNewStatus(e.target.value)}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none cursor-pointer"
+                    className="w-full px-3 py-2.5 sm:py-2 text-sm rounded-lg border border-slate-200 hover:border-slate-300 focus:border-mint-500 focus:ring-2 focus:ring-mint-500/25 outline-none cursor-pointer transition-all duration-200 bg-white text-slate-800"
                   >
                     <option value="">--</option>
                     {validTransitions.map((s) => (
@@ -229,7 +229,7 @@ export default function AdminOrderDetailPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 mb-1.5">
+                  <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1.5">
                     {t('admin.orderDetail.notes')}
                   </label>
                   <textarea
@@ -237,7 +237,7 @@ export default function AdminOrderDetailPage() {
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder={t('admin.orderDetail.notesPlaceholder')}
                     rows={3}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none resize-none"
+                    className="w-full px-3 py-2.5 sm:py-2 text-sm rounded-lg border border-slate-200 hover:border-slate-300 focus:border-mint-500 focus:ring-2 focus:ring-mint-500/25 outline-none resize-y min-h-[80px] transition-all duration-200 bg-white text-slate-800 placeholder:text-slate-400"
                   />
                 </div>
 

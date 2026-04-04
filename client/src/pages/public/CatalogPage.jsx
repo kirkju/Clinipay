@@ -1,24 +1,25 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Package, Check } from 'lucide-react';
+import { Package, CheckCircle } from 'lucide-react';
 import { getActivePackages } from '../../services/packages.service';
 import { formatCurrency } from '../../utils/constants';
-import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
 
 function SkeletonCard() {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden animate-pulse">
-      <div className="h-48 bg-gray-200" />
+    <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+      <div className="bg-slate-200 h-40 animate-pulse" />
       <div className="p-5 space-y-3">
-        <div className="h-5 bg-gray-200 rounded w-3/4" />
-        <div className="h-4 bg-gray-200 rounded w-full" />
-        <div className="h-4 bg-gray-200 rounded w-1/2" />
-        <div className="flex justify-between items-center pt-2">
-          <div className="h-7 bg-gray-200 rounded w-24" />
-          <div className="h-9 bg-gray-200 rounded w-28" />
+        <div className="h-5 bg-slate-200 rounded-md w-3/4 animate-pulse" />
+        <div className="h-4 bg-slate-100 rounded-md w-full animate-pulse" />
+        <div className="h-4 bg-slate-100 rounded-md w-5/6 animate-pulse" />
+        <div className="space-y-2 mt-4">
+          <div className="h-3 bg-slate-100 rounded w-2/3 animate-pulse" />
+          <div className="h-3 bg-slate-100 rounded w-3/4 animate-pulse" />
+          <div className="h-3 bg-slate-100 rounded w-1/2 animate-pulse" />
         </div>
+        <div className="h-11 bg-slate-200 rounded-xl mt-4 animate-pulse" />
       </div>
     </div>
   );
@@ -46,66 +47,78 @@ export default function CatalogPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="text-center mb-12">
-        <h1 className="text-3xl sm:text-4xl font-bold text-text-dark mb-3">
+    <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-16">
+      <div className="text-center mb-10 sm:mb-12">
+        <h1 className="font-display text-[28px] leading-[34px] sm:text-[36px] sm:leading-[42px] font-bold text-slate-800 mb-3">
           {t('catalog.title')}
         </h1>
-        <p className="text-gray-500 text-lg">{t('catalog.subtitle')}</p>
+        <p className="text-slate-500 text-base sm:text-lg font-body">{t('catalog.subtitle')}</p>
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <SkeletonCard key={i} />
           ))}
         </div>
       ) : packages.length === 0 ? (
-        <div className="text-center py-16">
-          <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500 text-lg">{t('catalog.noPackages')}</p>
+        <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+          <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mb-4">
+            <Package className="w-8 h-8 text-slate-400" />
+          </div>
+          <h3 className="font-display font-semibold text-lg text-slate-700 mb-1.5">
+            {t('catalog.noPackages')}
+          </h3>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
           {packages.map((pkg) => {
             const includes = pkg[`includes_${lang}`] || pkg.includes_es || [];
             return (
               <div
                 key={pkg.id}
-                className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+                className="group bg-white rounded-2xl border border-slate-200 shadow-card hover:shadow-card-hover transition-all duration-300 ease-out hover:-translate-y-1 overflow-hidden flex flex-col"
               >
-                <div className="h-40 bg-gradient-to-br from-primary-light/30 to-primary/10 flex items-center justify-center">
-                  <Package className="w-14 h-14 text-primary/50" />
-                </div>
-                <div className="p-5">
-                  <h3 className="text-lg font-semibold text-text-dark mb-2">
+                {/* Header gradient */}
+                <div className="bg-gradient-to-br from-mint-400 to-mint-600 px-5 py-6 sm:px-6 sm:py-8">
+                  <h3 className="font-display text-xl sm:text-2xl font-bold text-white">
                     {pkg[`name_${lang}`] || pkg.name_es}
                   </h3>
+                  <div className="mt-3 flex items-baseline gap-1">
+                    <span className="text-3xl sm:text-4xl font-bold text-white">
+                      {formatCurrency(pkg.price, pkg.currency)}
+                    </span>
+                  </div>
+                </div>
 
-                  <ul className="space-y-1.5 mb-4">
-                    {includes.slice(0, 3).map((item, idx) => (
-                      <li key={idx} className="flex items-start gap-2 text-sm text-gray-600">
-                        <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                {/* Content */}
+                <div className="flex-1 p-5 sm:p-6 space-y-4">
+                  <p className="text-slate-600 text-sm leading-relaxed font-body">
+                    {pkg[`description_${lang}`] || pkg.description_es}
+                  </p>
+                  <ul className="space-y-2.5">
+                    {includes.slice(0, 4).map((item, idx) => (
+                      <li key={idx} className="flex items-start gap-2.5 text-sm text-slate-700">
+                        <CheckCircle className="w-5 h-5 text-mint-500 shrink-0 mt-0.5" />
                         <span>{item}</span>
                       </li>
                     ))}
-                    {includes.length > 3 && (
-                      <li className="text-sm text-gray-400 pl-6">
-                        +{includes.length - 3} ...
+                    {includes.length > 4 && (
+                      <li className="text-sm text-slate-400 pl-7">
+                        +{includes.length - 4} ...
                       </li>
                     )}
                   </ul>
+                </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                    <span className="text-2xl font-bold text-primary">
-                      {formatCurrency(pkg.price, pkg.currency)}
-                    </span>
-                    <Link to={`/packages/${pkg.id}`}>
-                      <Button variant="secondary" size="sm">
-                        {t('catalog.viewDetails')}
-                      </Button>
-                    </Link>
-                  </div>
+                {/* Footer CTA */}
+                <div className="p-5 sm:p-6 pt-0">
+                  <Link
+                    to={`/packages/${pkg.id}`}
+                    className="block w-full bg-mint-500 hover:bg-mint-600 text-white font-semibold py-3 rounded-xl transition-all duration-200 group-hover:shadow-md text-center text-sm sm:text-base"
+                  >
+                    {t('catalog.viewDetails')}
+                  </Link>
                 </div>
               </div>
             );

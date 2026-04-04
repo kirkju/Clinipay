@@ -46,18 +46,20 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md animate-fade-in-up">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-text-dark mb-2">
+          <h1 className="font-display text-[28px] leading-[34px] sm:text-[36px] sm:leading-[42px] font-bold text-slate-800">
             {t('resetPassword.title')}
           </h1>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-6 sm:p-8">
           {success ? (
             <div className="text-center py-4">
-              <CheckCircle className="w-16 h-16 text-success mx-auto mb-4" />
-              <p className="text-gray-600 mb-6">{t('resetPassword.successMessage')}</p>
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-success-50 flex items-center justify-center">
+                <CheckCircle className="w-8 h-8 text-success-500" />
+              </div>
+              <p className="text-slate-600 mb-6 font-body">{t('resetPassword.successMessage')}</p>
               <Link to="/login">
                 <Button>{t('resetPassword.backToLogin')}</Button>
               </Link>

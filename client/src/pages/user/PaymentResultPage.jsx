@@ -12,24 +12,24 @@ export default function PaymentResultPage() {
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md text-center">
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-10">
+      <div className="w-full max-w-md text-center animate-fade-in-up">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-8 sm:p-10">
           {isSuccess ? (
             <>
-              <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-success/10 flex items-center justify-center">
-                <CheckCircle className="w-12 h-12 text-success" />
+              <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-success-50 flex items-center justify-center">
+                <CheckCircle className="w-10 h-10 text-success-500" />
               </div>
-              <h1 className="text-2xl font-bold text-text-dark mb-3">
+              <h1 className="font-display text-2xl font-bold text-slate-800 mb-3">
                 {t('paymentResult.successTitle')}
               </h1>
-              <p className="text-gray-500 mb-6">{t('paymentResult.successMessage')}</p>
+              <p className="text-slate-500 text-sm mb-6 font-body">{t('paymentResult.successMessage')}</p>
               {orderId && (
-                <p className="text-sm text-gray-500 mb-8">
+                <p className="text-sm text-slate-500 mb-8 font-body">
                   {t('paymentResult.orderNumber')}:{' '}
-                  <span className="font-mono font-semibold text-text-dark">{orderId}</span>
+                  <span className="font-mono font-semibold text-slate-800">{orderId}</span>
                 </p>
               )}
-              <div className="space-y-3">
+              <div className="flex flex-col gap-3">
                 {orderId && (
                   <Link to={`/my-orders/${orderId}`}>
                     <Button className="w-full">{t('paymentResult.viewOrder')}</Button>
@@ -44,14 +44,14 @@ export default function PaymentResultPage() {
             </>
           ) : (
             <>
-              <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-error/10 flex items-center justify-center">
-                <XCircle className="w-12 h-12 text-error" />
+              <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-error-50 flex items-center justify-center">
+                <XCircle className="w-10 h-10 text-error-500" />
               </div>
-              <h1 className="text-2xl font-bold text-text-dark mb-3">
+              <h1 className="font-display text-2xl font-bold text-slate-800 mb-3">
                 {t('paymentResult.failureTitle')}
               </h1>
-              <p className="text-gray-500 mb-8">{t('paymentResult.failureMessage')}</p>
-              <div className="space-y-3">
+              <p className="text-slate-500 text-sm mb-8 font-body">{t('paymentResult.failureMessage')}</p>
+              <div className="flex flex-col gap-3">
                 <Link to="/packages">
                   <Button className="w-full">{t('paymentResult.tryAgain')}</Button>
                 </Link>

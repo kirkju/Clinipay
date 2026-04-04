@@ -9,7 +9,7 @@ export default function Spinner({ size = 'md', className = '' }) {
 
   return (
     <Loader2
-      className={`animate-spin text-primary ${sizes[size] || sizes.md} ${className}`}
+      className={`animate-spin text-mint-500 ${sizes[size] || sizes.md} ${className}`}
     />
   );
 }

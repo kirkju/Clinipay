@@ -1,20 +1,145 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #3EB489;
-  --color-primary-dark: #1B5E3B;
-  --color-primary-light: #A8E6CF;
-  --color-background: #FFFFFF;
-  --color-background-alt: #F7FAF8;
-  --color-text-dark: #1A1A2E;
-  --color-error: #E74C3C;
-  --color-success: #27AE60;
-  --color-warning: #F39C12;
-  --font-sans: 'Inter', sans-serif;
+  /* === Primarios (Mint) === */
+  --color-mint-50:  #F0FDF7;
+  --color-mint-100: #DCFCE9;
+  --color-mint-200: #BBF7D4;
+  --color-mint-300: #86EFAD;
+  --color-mint-400: #4ADE80;
+  --color-mint-500: #3EB489;
+  --color-mint-600: #16A34A;
+  --color-mint-700: #15803D;
+  --color-mint-800: #166534;
+  --color-mint-900: #14532D;
+  --color-mint-950: #052E16;
+
+  /* === Secundarios (Forest) === */
+  --color-forest-500: #1B5E3B;
+  --color-forest-600: #164A2F;
+  --color-forest-700: #0F3623;
+  --color-forest-800: #0A2518;
+
+  /* === Neutros (Slate custom) === */
+  --color-slate-50:  #F7FAF8;
+  --color-slate-100: #F0F4F1;
+  --color-slate-200: #E2E8E4;
+  --color-slate-300: #CBD5CE;
+  --color-slate-400: #94A39A;
+  --color-slate-500: #6B7C72;
+  --color-slate-600: #4A5A50;
+  --color-slate-700: #374740;
+  --color-slate-800: #1A2A22;
+  --color-slate-900: #0D1510;
+
+  /* === Estados === */
+  --color-success-50:  #F0FDF4;
+  --color-success-100: #DCFCE7;
+  --color-success-500: #22C55E;
+  --color-success-700: #15803D;
+
+  --color-warning-50:  #FFFBEB;
+  --color-warning-100: #FEF3C7;
+  --color-warning-500: #F59E0B;
+  --color-warning-700: #B45309;
+
+  --color-error-50:  #FEF2F2;
+  --color-error-100: #FEE2E2;
+  --color-error-500: #EF4444;
+  --color-error-700: #B91C1C;
+
+  --color-info-50:  #EFF6FF;
+  --color-info-100: #DBEAFE;
+  --color-info-500: #3B82F6;
+  --color-info-700: #1D4ED8;
+
+  /* === Tipografía === */
+  --font-display: 'DM Sans', sans-serif;
+  --font-body:    'Plus Jakarta Sans', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+
+  /* === Border Radius === */
+  --radius-sm:  6px;
+  --radius-md:  10px;
+  --radius-lg:  14px;
+  --radius-xl:  18px;
+  --radius-2xl: 24px;
+  --radius-3xl: 32px;
+
+  /* === Box Shadows === */
+  --shadow-card:       0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-card-hover: 0 4px 12px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.10);
+  --shadow-elevated:   0 8px 30px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+  --shadow-modal:      0 20px 60px rgba(0,0,0,0.15), 0 4px 16px rgba(0,0,0,0.08);
+  --shadow-navbar:     0 1px 3px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.04);
+  --shadow-input-focus: 0 0 0 3px rgba(62,180,137,0.25);
+
+  /* === Animations === */
+  --animate-fade-in:        fadeIn 0.3s ease-out;
+  --animate-fade-in-up:     fadeInUp 0.4s ease-out;
+  --animate-fade-in-down:   fadeInDown 0.3s ease-out;
+  --animate-slide-in-right: slideInRight 0.3s ease-out;
+  --animate-slide-in-left:  slideInLeft 0.3s ease-out;
+  --animate-scale-in:       scaleIn 0.2s ease-out;
+  --animate-pulse-soft:     pulseSoft 2s ease-in-out infinite;
+  --animate-shimmer:        shimmer 1.5s ease-in-out infinite;
+  --animate-bounce-subtle:  bounceSubtle 0.4s ease-out;
 }
 
+/* === Keyframes === */
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInDown {
+  0% { opacity: 0; transform: translateY(-12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideInRight {
+  0% { opacity: 0; transform: translateX(16px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideInLeft {
+  0% { opacity: 0; transform: translateX(-16px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes scaleIn {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes pulseSoft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes bounceSubtle {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* === Base styles === */
 body {
-  font-family: var(--font-sans);
-  color: var(--color-text-dark);
-  background-color: var(--color-background);
+  font-family: var(--font-body);
+  color: var(--color-slate-800);
+  background-color: var(--color-slate-50);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+/* === Reduced Motion === */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
