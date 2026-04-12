@@ -54,7 +54,7 @@ Create a new client account.
   "password": "SecurePass1",
   "firstName": "Maria",
   "lastName": "Rodriguez",
-  "phone": "+507 6000-1234",
+  "phone": "+504 0000-1234",
   "preferredLanguage": "es"
 }
 ```
@@ -300,7 +300,7 @@ Get the currently authenticated user's profile.
     "email": "maria@example.com",
     "first_name": "Maria",
     "last_name": "Rodriguez",
-    "phone": "+507 6000-1234",
+    "phone": "+504 0000-1234",
     "role": "client",
     "auth_provider": "local",
     "preferred_language": "es",
@@ -970,7 +970,7 @@ List all registered users with their order counts.
       "email": "maria@example.com",
       "first_name": "Maria",
       "last_name": "Rodriguez",
-      "phone": "+507 6000-1234",
+      "phone": "+504 0000-1234",
       "role": "client",
       "auth_provider": "local",
       "preferred_language": "es",

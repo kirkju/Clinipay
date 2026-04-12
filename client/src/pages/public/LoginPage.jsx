@@ -7,6 +7,8 @@ import { googleLogin } from '../../services/auth.service';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import toast from 'react-hot-toast';
+import SEOHead from '../../components/seo/SEOHead';
+import { trackEvent } from '../../hooks/usePageTracking';
 
 export default function LoginPage() {
   const { t } = useTranslation();
@@ -35,6 +37,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(form.email, form.password);
+      trackEvent('login', { method: 'email' });
       toast.success(t('success.login'));
       navigate(returnUrl, { replace: true });
     } catch (err) {
@@ -47,6 +50,11 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
+      <SEOHead
+        title="Iniciar Sesión — CLINIPAY"
+        description="Accede a tu cuenta CLINIPAY para gestionar tus paquetes médicos y ver el estado de tus órdenes."
+        path="/login"
+      />
       <div className="w-full max-w-md animate-fade-in-up">
         <div className="text-center mb-8">
           <h1 className="font-display text-[28px] leading-[34px] sm:text-[36px] sm:leading-[42px] font-bold text-slate-800 mb-3">

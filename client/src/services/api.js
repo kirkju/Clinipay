@@ -40,7 +40,16 @@ function processQueue(error, token = null) {
 }
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Unwrap the backend's { success, data: {...} } envelope so callers get
+    // the payload directly (e.g. { packages: [...] } instead of { success, data: { packages } }).
+    // Endpoints that only return { success, message } are passed through unchanged.
+    const body = response.data;
+    if (body && typeof body === 'object' && 'success' in body && body.data && typeof body.data === 'object') {
+      response.data = body.data;
+    }
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
 
@@ -60,10 +69,12 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
+        // Raw axios call bypasses our response interceptor (intentionally, to
+        // avoid re-entering the refresh flow), so we read the envelope directly.
         const { data } = await axios.post('/api/auth/refresh', null, {
           withCredentials: true,
         });
-        const newToken = data.accessToken;
+        const newToken = data?.data?.accessToken;
         setAccessToken(newToken);
         processQueue(null, newToken);
         originalRequest.headers.Authorization = `Bearer ${newToken}`;

@@ -8,6 +8,7 @@ import Badge from '../../components/ui/Badge';
 import Table from '../../components/ui/Table';
 import Spinner from '../../components/ui/Spinner';
 import Button from '../../components/ui/Button';
+import SEOHead from '../../components/seo/SEOHead';
 
 export default function MyOrdersPage() {
   const { t, i18n } = useTranslation();
@@ -47,19 +48,24 @@ export default function MyOrdersPage() {
     t('myOrders.date'),
   ];
 
-  const rows = orders.map((order) => ({
-    id: order.id,
-    cells: [
-      <span className="font-mono text-sm font-medium text-slate-800">{order.order_number}</span>,
-      <span className="text-slate-700">{order.package?.[`name_${lang}`] || order.package?.name_es || '-'}</span>,
-      <span className="font-semibold text-slate-800">{formatCurrency(order.total_amount, order.currency)}</span>,
-      <Badge status={order.status} />,
-      <span className="text-slate-500 text-sm">{formatDate(order.created_at)}</span>,
-    ],
-  }));
+  const rows = orders.map((order) => {
+    const pkgName = order[`first_package_name_${lang}`] || order.first_package_name_es || '-';
+    const label = order.item_count > 1 ? `${pkgName} +${order.item_count - 1}` : pkgName;
+    return {
+      id: order.id,
+      cells: [
+        <span className="font-mono text-sm font-medium text-slate-800">{order.order_number}</span>,
+        <span className="text-slate-700">{label}</span>,
+        <span className="font-semibold text-slate-800">{formatCurrency(order.total_amount, order.currency)}</span>,
+        <Badge status={order.status} />,
+        <span className="text-slate-500 text-sm">{formatDate(order.created_at)}</span>,
+      ],
+    };
+  });
 
   return (
     <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+      <SEOHead title="Mis Órdenes — CLINIPAY" path="/my-orders" noIndex />
       <h1 className="font-display text-[22px] leading-[28px] sm:text-[28px] sm:leading-[34px] lg:text-[36px] lg:leading-[42px] font-bold text-slate-800 mb-8">
         {t('myOrders.title')}
       </h1>

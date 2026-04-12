@@ -2,30 +2,79 @@ const { getPool, sql } = require('../config/db');
 
 const OrderModel = {
   /**
-   * Create a new order and return the inserted record.
+   * Create a new order with items (inside a transaction).
+   * @param {Object} orderData - { order_number, user_id, total_amount, currency }
+   * @param {Array}  items     - [{ package_id, package_name_es, package_name_en, unit_price, currency, patient_* }]
    */
-  async create({ order_number, user_id, package_id, amount, currency }) {
+  async create(orderData, items) {
     const pool = await getPool();
-    const result = await pool.request()
-      .input('order_number', sql.NVarChar(50), order_number)
-      .input('user_id', sql.Int, user_id)
-      .input('package_id', sql.Int, package_id)
-      .input('amount', sql.Decimal(10, 2), amount)
-      .input('currency', sql.NVarChar(3), currency || 'USD')
-      .query(`
-        INSERT INTO orders (order_number, user_id, package_id, amount, currency)
-        OUTPUT INSERTED.*
-        VALUES (@order_number, @user_id, @package_id, @amount, @currency)
-      `);
-    return result.recordset[0];
+    const transaction = pool.transaction();
+    await transaction.begin();
+
+    try {
+      // Insert the order header
+      const orderResult = await transaction.request()
+        .input('order_number', sql.NVarChar(50), orderData.order_number)
+        .input('user_id', sql.Int, orderData.user_id)
+        .input('total_amount', sql.Decimal(10, 2), orderData.total_amount)
+        .input('currency', sql.NVarChar(3), orderData.currency || 'USD')
+        .query(`
+          INSERT INTO orders (order_number, user_id, total_amount, currency)
+          OUTPUT INSERTED.*
+          VALUES (@order_number, @user_id, @total_amount, @currency)
+        `);
+
+      const order = orderResult.recordset[0];
+
+      // Insert each item
+      const insertedItems = [];
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const itemResult = await transaction.request()
+          .input('order_id', sql.Int, order.id)
+          .input('package_id', sql.Int, item.package_id)
+          .input('package_name_es', sql.NVarChar(255), item.package_name_es)
+          .input('package_name_en', sql.NVarChar(255), item.package_name_en || null)
+          .input('unit_price', sql.Decimal(10, 2), item.unit_price)
+          .input('currency', sql.NVarChar(3), item.currency || 'USD')
+          .input('patient_first_name', sql.NVarChar(100), item.patient_first_name)
+          .input('patient_last_name', sql.NVarChar(100), item.patient_last_name)
+          .input('patient_id_number', sql.NVarChar(50), item.patient_id_number || null)
+          .input('patient_phone', sql.NVarChar(30), item.patient_phone)
+          .input('patient_email', sql.NVarChar(255), item.patient_email || null)
+          .input('patient_birth_date', sql.Date, item.patient_birth_date)
+          .input('patient_relationship', sql.NVarChar(30), item.patient_relationship || 'self')
+          .input('patient_notes', sql.NVarChar(sql.MAX), item.patient_notes || null)
+          .query(`
+            INSERT INTO order_items
+              (order_id, package_id, package_name_es, package_name_en, unit_price, currency,
+               patient_first_name, patient_last_name, patient_id_number, patient_phone,
+               patient_email, patient_birth_date, patient_relationship, patient_notes)
+            OUTPUT INSERTED.*
+            VALUES
+              (@order_id, @package_id, @package_name_es, @package_name_en, @unit_price, @currency,
+               @patient_first_name, @patient_last_name, @patient_id_number, @patient_phone,
+               @patient_email, @patient_birth_date, @patient_relationship, @patient_notes)
+          `);
+        insertedItems.push(itemResult.recordset[0]);
+      }
+
+      await transaction.commit();
+      order.items = insertedItems;
+      return order;
+    } catch (err) {
+      await transaction.rollback();
+      throw err;
+    }
   },
 
   /**
-   * Find a single order by ID, joined with user and package names.
+   * Find a single order by ID with user info and items.
    */
   async findById(id) {
     const pool = await getPool();
-    const result = await pool.request()
+
+    const orderResult = await pool.request()
       .input('id', sql.Int, id)
       .query(`
         SELECT
@@ -33,18 +82,29 @@ const OrderModel = {
           u.email AS user_email,
           u.first_name AS user_first_name,
           u.last_name AS user_last_name,
-          p.name_es AS package_name_es,
-          p.name_en AS package_name_en
+          u.phone AS user_phone
         FROM orders o
         INNER JOIN users u ON u.id = o.user_id
-        INNER JOIN packages p ON p.id = o.package_id
         WHERE o.id = @id
       `);
-    return result.recordset[0] || null;
+
+    const order = orderResult.recordset[0] || null;
+    if (!order) return null;
+
+    const itemsResult = await pool.request()
+      .input('order_id', sql.Int, id)
+      .query(`
+        SELECT * FROM order_items
+        WHERE order_id = @order_id
+        ORDER BY id ASC
+      `);
+
+    order.items = itemsResult.recordset;
+    return order;
   },
 
   /**
-   * Find all orders for a specific user.
+   * Find all orders for a specific user (with item count).
    */
   async findByUserId(userId) {
     const pool = await getPool();
@@ -53,10 +113,10 @@ const OrderModel = {
       .query(`
         SELECT
           o.*,
-          p.name_es AS package_name_es,
-          p.name_en AS package_name_en
+          (SELECT COUNT(*) FROM order_items oi WHERE oi.order_id = o.id) AS item_count,
+          (SELECT TOP 1 oi.package_name_es FROM order_items oi WHERE oi.order_id = o.id ORDER BY oi.id) AS first_package_name_es,
+          (SELECT TOP 1 oi.package_name_en FROM order_items oi WHERE oi.order_id = o.id ORDER BY oi.id) AS first_package_name_en
         FROM orders o
-        INNER JOIN packages p ON p.id = o.package_id
         WHERE o.user_id = @user_id
         ORDER BY o.created_at DESC
       `);
@@ -116,11 +176,11 @@ const OrderModel = {
         u.email AS user_email,
         u.first_name AS user_first_name,
         u.last_name AS user_last_name,
-        p.name_es AS package_name_es,
-        p.name_en AS package_name_en
+        (SELECT COUNT(*) FROM order_items oi WHERE oi.order_id = o.id) AS item_count,
+        (SELECT TOP 1 oi.package_name_es FROM order_items oi WHERE oi.order_id = o.id ORDER BY oi.id) AS first_package_name_es,
+        (SELECT TOP 1 oi.package_name_en FROM order_items oi WHERE oi.order_id = o.id ORDER BY oi.id) AS first_package_name_en
       FROM orders o
       INNER JOIN users u ON u.id = o.user_id
-      INNER JOIN packages p ON p.id = o.package_id
       WHERE ${whereClause}
       ORDER BY o.created_at DESC
       OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY
@@ -215,6 +275,21 @@ const OrderModel = {
   },
 
   /**
+   * Get items for a specific order.
+   */
+  async getItemsByOrderId(orderId) {
+    const pool = await getPool();
+    const result = await pool.request()
+      .input('order_id', sql.Int, orderId)
+      .query(`
+        SELECT * FROM order_items
+        WHERE order_id = @order_id
+        ORDER BY id ASC
+      `);
+    return result.recordset;
+  },
+
+  /**
    * Get dashboard statistics for admin.
    */
   async getDashboardStats() {
@@ -223,7 +298,7 @@ const OrderModel = {
       SELECT
         (SELECT COUNT(*) FROM orders) AS total_orders,
         (SELECT COUNT(*) FROM orders WHERE status = 'pending') AS pending_orders,
-        (SELECT COALESCE(SUM(amount), 0) FROM orders WHERE status IN ('paid', 'in_progress', 'completed')) AS total_revenue,
+        (SELECT COALESCE(SUM(total_amount), 0) FROM orders WHERE status IN ('paid', 'in_progress', 'completed')) AS total_revenue,
         (SELECT COUNT(*) FROM users WHERE role = 'client') AS total_users
     `);
     return result.recordset[0];
@@ -238,7 +313,6 @@ const OrderModel = {
     const datePart = today.toISOString().slice(0, 10).replace(/-/g, '');
     const prefix = `CLN-${datePart}-`;
 
-    // Use a serializable transaction to prevent race conditions
     const transaction = pool.transaction();
     await transaction.begin(sql.ISOLATION_LEVEL.SERIALIZABLE);
 

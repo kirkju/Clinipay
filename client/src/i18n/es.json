@@ -5,22 +5,23 @@
     "login": "Iniciar Sesión",
     "register": "Registrarse",
     "myOrders": "Mis Pedidos",
+    "cart": "Carrito",
     "logout": "Cerrar Sesión",
     "adminPanel": "Panel Admin",
     "language": "Idioma"
   },
   "footer": {
     "brand": "CLINIPAY",
-    "description": "Tu plataforma de confianza para paquetes médicos en línea en Panamá.",
+    "description": "Tu plataforma de confianza para paquetes médicos en línea en Honduras.",
     "contact": "Contacto",
     "email": "info@clinipay.com",
-    "phone": "+507 000-0000",
+    "phone": "+504 0000-0000",
     "links": "Enlaces",
     "terms": "Términos y Condiciones",
     "privacy": "Política de Privacidad",
     "copyright": "© {{year}} CLINIPAY. Todos los derechos reservados.",
     "madeWith": "Hecho con",
-    "inPanama": "en Panamá"
+    "inHonduras": "en Honduras"
   },
   "home": {
     "heroTitle": "Paquetes Médicos al Alcance de un Clic",
@@ -54,6 +55,51 @@
     "loading": "Cargando paquete...",
     "notFound": "Paquete no encontrado."
   },
+  "cart": {
+    "title": "Carrito de Compras",
+    "empty": "Tu carrito está vacío",
+    "emptyDesc": "Explora nuestro catálogo y agrega los paquetes médicos que necesites.",
+    "browseCatalog": "Explorar Catálogo",
+    "continueShopping": "Seguir Comprando",
+    "addToCart": "Agregar al Carrito",
+    "added": "Agregado al carrito",
+    "clearAll": "Vaciar Carrito",
+    "summary": "Resumen del Pedido",
+    "items": "{{count}} paquete(s)",
+    "proceedCheckout": "Ir al Checkout",
+    "backToCart": "Volver al Carrito"
+  },
+  "patient": {
+    "title": "Datos del Paciente",
+    "sectionTitle": "Información de Pacientes",
+    "sectionDesc": "Completa los datos del paciente que recibirá cada paquete médico.",
+    "iAmPatient": "Yo soy el paciente",
+    "firstName": "Nombre",
+    "firstNamePlaceholder": "Nombre del paciente",
+    "lastName": "Apellido",
+    "lastNamePlaceholder": "Apellido del paciente",
+    "phone": "Teléfono",
+    "phonePlaceholder": "+504 0000-0000",
+    "phoneRequired": "El teléfono es requerido.",
+    "birthDate": "Fecha de Nacimiento",
+    "birthDateRequired": "La fecha de nacimiento es requerida.",
+    "idNumber": "Cédula / ID (opcional)",
+    "idNumberPlaceholder": "Número de identificación",
+    "email": "Correo Electrónico (opcional)",
+    "emailPlaceholder": "correo@ejemplo.com",
+    "relationship": "Relación con el comprador",
+    "notes": "Notas (alergias, condiciones, etc.)",
+    "notesPlaceholder": "Información adicional relevante para el servicio médico...",
+    "fullName": "Nombre Completo",
+    "relationships": {
+      "self": "Yo mismo",
+      "spouse": "Cónyuge",
+      "child": "Hijo(a)",
+      "parent": "Padre/Madre",
+      "sibling": "Hermano(a)",
+      "other": "Otro"
+    }
+  },
   "login": {
     "title": "Iniciar Sesión",
     "email": "Correo Electrónico",
@@ -74,7 +120,7 @@
     "email": "Correo Electrónico",
     "password": "Contraseña",
     "confirmPassword": "Confirmar Contraseña",
-    "phone": "Teléfono (opcional)",
+    "phone": "Teléfono",
     "submit": "Registrarse",
     "googleButton": "Continuar con Google",
     "hasAccount": "¿Ya tienes cuenta?",
@@ -85,7 +131,7 @@
     "emailPlaceholder": "tu@email.com",
     "passwordPlaceholder": "Mínimo 8 caracteres",
     "confirmPasswordPlaceholder": "Repite tu contraseña",
-    "phonePlaceholder": "+507 6000-0000",
+    "phonePlaceholder": "+504 0000-0000",
     "passwordStrength": "Fortaleza de contraseña",
     "strengthWeak": "Débil",
     "strengthMedium": "Media",
@@ -115,6 +161,7 @@
   "checkout": {
     "title": "Finalizar Compra",
     "packageSummary": "Resumen del Paquete",
+    "orderItems": "Paquetes en tu Orden",
     "includes": "Incluye",
     "buyerInfo": "Información del Comprador",
     "name": "Nombre",
@@ -159,6 +206,7 @@
     "title": "Detalle del Pedido",
     "orderNumber": "Número de Orden",
     "package": "Paquete",
+    "items": "Paquetes",
     "amount": "Monto",
     "status": "Estado",
     "createdAt": "Fecha de Creación",
@@ -286,7 +334,8 @@
     "passwordMinLength": "La contraseña debe tener al menos 8 caracteres.",
     "firstNameRequired": "El nombre es requerido.",
     "lastNameRequired": "El apellido es requerido.",
-    "invalidEmail": "Correo electrónico inválido."
+    "invalidEmail": "Correo electrónico inválido.",
+    "phoneRequired": "El número de teléfono es requerido."
   },
   "success": {
     "login": "¡Bienvenido de nuevo!",

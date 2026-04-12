@@ -6,6 +6,7 @@ import { forgotPassword } from '../../services/auth.service';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import toast from 'react-hot-toast';
+import SEOHead from '../../components/seo/SEOHead';
 
 export default function ForgotPasswordPage() {
   const { t } = useTranslation();
@@ -36,6 +37,11 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
+      <SEOHead
+        title="Recuperar Contraseña — CLINIPAY"
+        path="/forgot-password"
+        noIndex
+      />
       <div className="w-full max-w-md animate-fade-in-up">
         <div className="text-center mb-8">
           <h1 className="font-display text-[28px] leading-[34px] sm:text-[36px] sm:leading-[42px] font-bold text-slate-800">

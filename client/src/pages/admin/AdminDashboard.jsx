@@ -7,6 +7,7 @@ import { formatCurrency, formatDate } from '../../utils/constants';
 import Badge from '../../components/ui/Badge';
 import Table from '../../components/ui/Table';
 import Spinner from '../../components/ui/Spinner';
+import SEOHead from '../../components/seo/SEOHead';
 
 function StatCard({ icon: Icon, label, value, bgColor, iconColor }) {
   return (
@@ -80,6 +81,7 @@ export default function AdminDashboard() {
 
   return (
     <div>
+      <SEOHead title="Admin — CLINIPAY" path="/admin" noIndex />
       <h1 className="font-display text-xl sm:text-2xl font-bold text-slate-800 mb-6">
         {t('admin.dashboard.title')}
       </h1>

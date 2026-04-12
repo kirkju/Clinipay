@@ -23,14 +23,14 @@ export const VALID_TRANSITIONS = {
 };
 
 export function formatCurrency(amount, currency = 'USD') {
-  return new Intl.NumberFormat('es-PA', {
+  return new Intl.NumberFormat('es-HN', {
     style: 'currency',
     currency,
     minimumFractionDigits: 2,
   }).format(amount);
 }
 
-export function formatDate(dateString, locale = 'es-PA') {
+export function formatDate(dateString, locale = 'es-HN') {
   if (!dateString) return '-';
   return new Intl.DateTimeFormat(locale, {
     year: 'numeric',

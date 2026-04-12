@@ -1,51 +1,102 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { CheckCircle, CreditCard, AlertTriangle, ArrowLeft, ChevronDown } from 'lucide-react';
-import { getPackageById } from '../../services/packages.service';
+import { CreditCard, AlertTriangle, ArrowLeft, ShoppingCart, CheckCircle } from 'lucide-react';
 import { createOrder, simulatePayment } from '../../services/orders.service';
 import { useAuth } from '../../context/AuthContext';
+import { useCart } from '../../context/CartContext';
 import { formatCurrency } from '../../utils/constants';
+import PatientForm from '../../components/checkout/PatientForm';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
 import Spinner from '../../components/ui/Spinner';
 import toast from 'react-hot-toast';
-import { Link } from 'react-router-dom';
+import SEOHead from '../../components/seo/SEOHead';
+import { trackEvent } from '../../hooks/usePageTracking';
+
+const EMPTY_PATIENT = {
+  patient_first_name: '',
+  patient_last_name: '',
+  patient_id_number: '',
+  patient_phone: '',
+  patient_email: '',
+  patient_birth_date: '',
+  patient_relationship: 'self',
+  patient_notes: '',
+};
 
 export default function CheckoutPage() {
-  const { packageId } = useParams();
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { items: cartItems, clearCart, cartTotal } = useCart();
   const lang = i18n.language?.startsWith('en') ? 'en' : 'es';
 
-  const [pkg, setPkg] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [patientForms, setPatientForms] = useState([]);
+  const [formErrors, setFormErrors] = useState([]);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [orderId, setOrderId] = useState(null);
-  const [mobileDetailOpen, setMobileDetailOpen] = useState(false);
 
   useEffect(() => {
-    fetchPackage();
-  }, [packageId]);
-
-  async function fetchPackage() {
-    try {
-      const data = await getPackageById(packageId);
-      setPkg(data.package || data);
-    } catch {
-      setPkg(null);
-    } finally {
-      setLoading(false);
+    if (cartItems.length === 0) {
+      navigate('/cart');
+      return;
     }
+    // Initialize one patient form per cart item
+    setPatientForms(cartItems.map(() => ({ ...EMPTY_PATIENT })));
+    setFormErrors(cartItems.map(() => ({})));
+  }, []);
+
+  function handlePatientChange(index, data) {
+    setPatientForms((prev) => {
+      const next = [...prev];
+      next[index] = data;
+      return next;
+    });
+    // Clear errors for that index
+    setFormErrors((prev) => {
+      const next = [...prev];
+      next[index] = {};
+      return next;
+    });
+  }
+
+  function validateForms() {
+    const errors = patientForms.map((form) => {
+      const e = {};
+      if (!form.patient_first_name.trim()) e.patient_first_name = t('errors.firstNameRequired');
+      if (!form.patient_last_name.trim()) e.patient_last_name = t('errors.lastNameRequired');
+      if (!form.patient_phone.trim()) e.patient_phone = t('patient.phoneRequired');
+      if (!form.patient_birth_date) e.patient_birth_date = t('patient.birthDateRequired');
+      if (form.patient_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.patient_email)) {
+        e.patient_email = t('errors.invalidEmail');
+      }
+      return e;
+    });
+    setFormErrors(errors);
+    return errors.every((e) => Object.keys(e).length === 0);
   }
 
   async function handleProceedToPayment() {
+    if (!validateForms()) {
+      toast.error(t('errors.validation'));
+      return;
+    }
+
     try {
       setProcessing(true);
-      const data = await createOrder(packageId);
-      setOrderId(data.order?.id || data.id);
+
+      // Build items payload
+      const items = cartItems.map((cartItem, idx) => ({
+        package_id: cartItem.packageId,
+        ...patientForms[idx],
+      }));
+
+      const data = await createOrder(items);
+      const newOrderId = data.order?.id || data.id;
+      setOrderId(newOrderId);
+      trackEvent('begin_checkout', { items: cartItems.length, value: cartTotal });
       toast.success(t('success.orderCreated'));
       setShowPaymentModal(true);
     } catch (err) {
@@ -62,6 +113,7 @@ export default function CheckoutPage() {
     try {
       await simulatePayment(orderId, success);
       setShowPaymentModal(false);
+      clearCart();
       if (success) {
         navigate(`/payment/result?status=success&orderId=${orderId}`);
       } else {
@@ -75,7 +127,7 @@ export default function CheckoutPage() {
     }
   }
 
-  if (loading) {
+  if (cartItems.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Spinner size="lg" />
@@ -83,24 +135,18 @@ export default function CheckoutPage() {
     );
   }
 
-  if (!pkg) {
-    return (
-      <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-        <p className="text-slate-500 text-lg font-body">{t('checkout.packageNotFound')}</p>
-      </div>
-    );
-  }
-
-  const includes = pkg[`includes_${lang}`] || pkg.includes_es || [];
+  const currency = cartItems[0]?.snapshot.currency || 'USD';
 
   return (
     <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+      <SEOHead title={`${t('checkout.title')} — CLINIPAY`} path="/checkout" noIndex />
+
       <Link
-        to={`/packages/${packageId}`}
+        to="/cart"
         className="inline-flex items-center gap-2 text-slate-500 hover:text-mint-600 transition-colors mb-6 text-sm font-medium"
       >
         <ArrowLeft className="w-4 h-4" />
-        {t('common.back')}
+        {t('cart.backToCart')}
       </Link>
 
       <h1 className="font-display text-[22px] leading-[28px] sm:text-[28px] sm:leading-[34px] lg:text-[36px] lg:leading-[42px] font-bold text-slate-800 mb-8">
@@ -108,55 +154,8 @@ export default function CheckoutPage() {
       </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8">
-        {/* Mobile: Collapsible summary */}
-        <div className="lg:hidden">
-          <button
-            onClick={() => setMobileDetailOpen(!mobileDetailOpen)}
-            className="w-full bg-white rounded-xl border border-slate-200 shadow-card p-4 flex items-center justify-between cursor-pointer"
-          >
-            <div>
-              <p className="text-sm text-slate-500 font-body">{pkg[`name_${lang}`] || pkg.name_es}</p>
-              <p className="text-xl font-bold text-slate-800">{formatCurrency(pkg.price, pkg.currency)}</p>
-            </div>
-            <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform duration-200 ${mobileDetailOpen ? 'rotate-180' : ''}`} />
-          </button>
-          {mobileDetailOpen && (
-            <div className="mt-2 bg-white rounded-xl border border-slate-200 p-4 animate-fade-in-down">
-              <ul className="space-y-2">
-                {includes.map((item, idx) => (
-                  <li key={idx} className="flex items-start gap-2 text-sm text-slate-600">
-                    <CheckCircle className="w-4 h-4 text-mint-500 shrink-0 mt-0.5" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-
-        {/* Left: Form area */}
+        {/* Left: Items + Patient forms */}
         <div className="lg:col-span-3 space-y-6">
-          {/* Package Summary - desktop only */}
-          <div className="hidden lg:block bg-white rounded-xl border border-slate-200 shadow-card p-6">
-            <h2 className="font-display text-lg font-semibold text-slate-800 mb-4">
-              {t('checkout.packageSummary')}
-            </h2>
-            <h3 className="font-display text-base font-medium text-slate-700 mb-2">
-              {pkg[`name_${lang}`] || pkg.name_es}
-            </h3>
-            <p className="text-slate-500 text-sm mb-4 font-body">
-              {pkg[`description_${lang}`] || pkg.description_es}
-            </p>
-            <ul className="space-y-2">
-              {includes.map((item, idx) => (
-                <li key={idx} className="flex items-start gap-2.5 text-sm text-slate-600">
-                  <CheckCircle className="w-4 h-4 text-mint-500 shrink-0 mt-0.5" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
           {/* Buyer Info */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-card p-5 sm:p-6">
             <h2 className="font-display text-lg font-semibold text-slate-800 mb-4">
@@ -177,28 +176,77 @@ export default function CheckoutPage() {
                 </label>
                 <p className="text-slate-800 font-medium text-sm">{user?.email}</p>
               </div>
-              {user?.phone && (
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">
-                    {t('checkout.phone')}
-                  </label>
-                  <p className="text-slate-800 font-medium text-sm">{user.phone}</p>
-                </div>
-              )}
             </div>
+          </div>
+
+          {/* Order items summary */}
+          <div className="bg-white rounded-xl border border-slate-200 shadow-card p-5 sm:p-6">
+            <h2 className="font-display text-lg font-semibold text-slate-800 mb-4">
+              {t('checkout.orderItems')} ({cartItems.length})
+            </h2>
+            <div className="space-y-3">
+              {cartItems.map((item) => (
+                <div key={item.lineId} className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+                  <div className="flex items-center gap-2.5">
+                    <CheckCircle className="w-4 h-4 text-mint-500 flex-shrink-0" />
+                    <span className="text-sm text-slate-700">
+                      {item.snapshot[`name_${lang}`] || item.snapshot.name_es}
+                    </span>
+                  </div>
+                  <span className="text-sm font-semibold text-slate-800">
+                    {formatCurrency(item.snapshot.price, item.snapshot.currency)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Patient forms — one per item */}
+          <div className="space-y-4">
+            <h2 className="font-display text-lg font-semibold text-slate-800">
+              {t('patient.sectionTitle')}
+            </h2>
+            <p className="text-sm text-slate-500 font-body -mt-2">
+              {t('patient.sectionDesc')}
+            </p>
+            {cartItems.map((item, idx) => (
+              <div key={item.lineId}>
+                <p className="text-sm font-medium text-mint-600 mb-2">
+                  {item.snapshot[`name_${lang}`] || item.snapshot.name_es}
+                </p>
+                <PatientForm
+                  index={idx}
+                  data={patientForms[idx] || EMPTY_PATIENT}
+                  onChange={handlePatientChange}
+                  errors={formErrors[idx] || {}}
+                />
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Right: Price & Pay - sticky on desktop */}
+        {/* Right: Total + Pay - sticky */}
         <div className="lg:col-span-2">
           <div className="bg-white rounded-xl border border-slate-200 shadow-card p-5 sm:p-6 lg:sticky lg:top-24">
-            <div className="flex items-center justify-between mb-6">
-              <span className="text-base font-medium text-slate-500 font-body">
-                {t('checkout.total')}
-              </span>
-              <span className="text-3xl font-bold text-slate-800">
-                {formatCurrency(pkg.price, pkg.currency)}
-              </span>
+            <h3 className="font-display text-lg font-semibold text-slate-800 mb-4">
+              {t('cart.summary')}
+            </h3>
+            <div className="space-y-3 mb-6">
+              {cartItems.map((item) => (
+                <div key={item.lineId} className="flex justify-between text-sm text-slate-600">
+                  <span className="truncate pr-2">{item.snapshot[`name_${lang}`] || item.snapshot.name_es}</span>
+                  <span className="flex-shrink-0">{formatCurrency(item.snapshot.price, item.snapshot.currency)}</span>
+                </div>
+              ))}
+              <hr className="border-slate-100" />
+              <div className="flex items-center justify-between">
+                <span className="text-base font-medium text-slate-500 font-body">
+                  {t('checkout.total')}
+                </span>
+                <span className="text-3xl font-bold text-slate-800">
+                  {formatCurrency(cartTotal, currency)}
+                </span>
+              </div>
             </div>
             <Button
               onClick={handleProceedToPayment}
@@ -222,7 +270,7 @@ export default function CheckoutPage() {
           size="lg"
         >
           <CreditCard className="w-5 h-5" />
-          {t('checkout.proceedPayment')} {formatCurrency(pkg.price, pkg.currency)}
+          {t('checkout.proceedPayment')} {formatCurrency(cartTotal, currency)}
         </Button>
       </div>
 
@@ -242,7 +290,7 @@ export default function CheckoutPage() {
           <div className="text-center mb-8">
             <p className="text-sm text-slate-500 mb-1 font-body">{t('paymentModal.amount')}</p>
             <p className="text-4xl font-bold text-slate-800 font-display">
-              {formatCurrency(pkg.price, pkg.currency)}
+              {formatCurrency(cartTotal, currency)}
             </p>
           </div>
 

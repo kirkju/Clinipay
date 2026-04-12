@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
+const compression = require('compression');
 
 const { connectDB } = require('./config/db');
 const { passport, configureGoogleStrategy } = require('./config/passport');
@@ -17,8 +18,27 @@ const authRoutes = require('./routes/auth.routes');
 const packagesRoutes = require('./routes/packages.routes');
 const ordersRoutes = require('./routes/orders.routes');
 const adminRoutes = require('./routes/admin.routes');
+const sitemapRoutes = require('./routes/sitemap.routes');
 
 const app = express();
+
+// ── Trailing slash normalization ─────────────────────────────────
+app.use((req, res, next) => {
+  if (req.path !== '/' && req.path.endsWith('/')) {
+    return res.redirect(301, req.path.slice(0, -1) + (req._parsedUrl.search || ''));
+  }
+  next();
+});
+
+// ── Compression ──────────────────────────────────────────────────
+app.use(compression({
+  level: 6,
+  threshold: 1024,
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) return false;
+    return compression.filter(req, res);
+  },
+}));
 
 // ── Security ──────────────────────────────────────────────────────
 app.use(helmet());
@@ -67,21 +87,64 @@ app.use(generalLimiter);
 app.use(passport.initialize());
 configureGoogleStrategy();
 
+// ── Sitemap (before static files, public endpoint) ───────────────
+app.use(sitemapRoutes);
+
 // ── Health check ──────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// ── Cache headers middleware ──────────────────────────────────────
+const cacheMiddleware = (seconds) => (req, res, next) => {
+  res.setHeader('Cache-Control', `public, max-age=${seconds}, s-maxage=${seconds}`);
+  next();
+};
+
+const noCacheMiddleware = (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  next();
+};
+
 // ── Routes ────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
-app.use('/api/packages', packagesRoutes);
-app.use('/api/orders', ordersRoutes);
-app.use('/api/admin', adminRoutes);
+app.use('/api/packages', cacheMiddleware(300), packagesRoutes);
+app.use('/api/orders', noCacheMiddleware, ordersRoutes);
+app.use('/api/admin', noCacheMiddleware, adminRoutes);
 
-// ── 404 handler ───────────────────────────────────────────────────
-app.use((req, res) => {
-  res.status(404).json({ success: false, message: 'Route not found.' });
-});
+// ── Static file serving (production) ─────────────────────────────
+if (process.env.NODE_ENV === 'production') {
+  const clientBuild = path.join(__dirname, '..', '..', 'client', 'dist');
+
+  // Hashed assets — cache aggressively
+  app.use('/assets', express.static(path.join(clientBuild, 'assets'), {
+    maxAge: '1y',
+    immutable: true,
+  }));
+
+  // Other static files (index.html, manifest, etc.)
+  app.use(express.static(clientBuild, {
+    maxAge: '1h',
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.html')) {
+        res.setHeader('Cache-Control', 'no-cache');
+      }
+    },
+  }));
+
+  // SPA fallback
+  app.get('*', (req, res) => {
+    if (req.path.startsWith('/api/')) {
+      return res.status(404).json({ success: false, message: 'Route not found.' });
+    }
+    res.sendFile(path.join(clientBuild, 'index.html'));
+  });
+} else {
+  // ── 404 handler (dev only — Vite handles SPA in dev) ───────────
+  app.use((req, res) => {
+    res.status(404).json({ success: false, message: 'Route not found.' });
+  });
+}
 
 // ── Global error handler ──────────────────────────────────────────
 app.use(errorHandler);

@@ -70,7 +70,7 @@ export default function Footer() {
           <div className="flex items-center gap-1">
             <span>{t('footer.madeWith')}</span>
             <Heart className="w-3.5 h-3.5 text-mint-500 fill-mint-500" />
-            <span>{t('footer.inPanama')}</span>
+            <span>{t('footer.inHonduras')}</span>
           </div>
         </div>
       </div>

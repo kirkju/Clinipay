@@ -5,22 +5,23 @@
     "login": "Login",
     "register": "Register",
     "myOrders": "My Orders",
+    "cart": "Cart",
     "logout": "Logout",
     "adminPanel": "Admin Panel",
     "language": "Language"
   },
   "footer": {
     "brand": "CLINIPAY",
-    "description": "Your trusted platform for online medical packages in Panama.",
+    "description": "Your trusted platform for online medical packages in Honduras.",
     "contact": "Contact",
     "email": "info@clinipay.com",
-    "phone": "+507 000-0000",
+    "phone": "+504 0000-0000",
     "links": "Links",
     "terms": "Terms & Conditions",
     "privacy": "Privacy Policy",
     "copyright": "© {{year}} CLINIPAY. All rights reserved.",
     "madeWith": "Made with",
-    "inPanama": "in Panama"
+    "inHonduras": "in Honduras"
   },
   "home": {
     "heroTitle": "Medical Packages at Your Fingertips",
@@ -54,6 +55,51 @@
     "loading": "Loading package...",
     "notFound": "Package not found."
   },
+  "cart": {
+    "title": "Shopping Cart",
+    "empty": "Your cart is empty",
+    "emptyDesc": "Browse our catalog and add the medical packages you need.",
+    "browseCatalog": "Browse Catalog",
+    "continueShopping": "Continue Shopping",
+    "addToCart": "Add to Cart",
+    "added": "Added to cart",
+    "clearAll": "Clear Cart",
+    "summary": "Order Summary",
+    "items": "{{count}} package(s)",
+    "proceedCheckout": "Proceed to Checkout",
+    "backToCart": "Back to Cart"
+  },
+  "patient": {
+    "title": "Patient Information",
+    "sectionTitle": "Patient Details",
+    "sectionDesc": "Complete the details for the patient who will receive each medical package.",
+    "iAmPatient": "I am the patient",
+    "firstName": "First Name",
+    "firstNamePlaceholder": "Patient's first name",
+    "lastName": "Last Name",
+    "lastNamePlaceholder": "Patient's last name",
+    "phone": "Phone",
+    "phonePlaceholder": "+504 0000-0000",
+    "phoneRequired": "Phone number is required.",
+    "birthDate": "Date of Birth",
+    "birthDateRequired": "Date of birth is required.",
+    "idNumber": "ID Number (optional)",
+    "idNumberPlaceholder": "Identification number",
+    "email": "Email (optional)",
+    "emailPlaceholder": "email@example.com",
+    "relationship": "Relationship to buyer",
+    "notes": "Notes (allergies, conditions, etc.)",
+    "notesPlaceholder": "Additional information relevant to the medical service...",
+    "fullName": "Full Name",
+    "relationships": {
+      "self": "Myself",
+      "spouse": "Spouse",
+      "child": "Child",
+      "parent": "Parent",
+      "sibling": "Sibling",
+      "other": "Other"
+    }
+  },
   "login": {
     "title": "Login",
     "email": "Email",
@@ -74,7 +120,7 @@
     "email": "Email",
     "password": "Password",
     "confirmPassword": "Confirm Password",
-    "phone": "Phone (optional)",
+    "phone": "Phone",
     "submit": "Register",
     "googleButton": "Continue with Google",
     "hasAccount": "Already have an account?",
@@ -85,7 +131,7 @@
     "emailPlaceholder": "you@email.com",
     "passwordPlaceholder": "Minimum 8 characters",
     "confirmPasswordPlaceholder": "Repeat your password",
-    "phonePlaceholder": "+507 6000-0000",
+    "phonePlaceholder": "+504 0000-0000",
     "passwordStrength": "Password strength",
     "strengthWeak": "Weak",
     "strengthMedium": "Medium",
@@ -115,6 +161,7 @@
   "checkout": {
     "title": "Checkout",
     "packageSummary": "Package Summary",
+    "orderItems": "Packages in Your Order",
     "includes": "Includes",
     "buyerInfo": "Buyer Information",
     "name": "Name",
@@ -159,6 +206,7 @@
     "title": "Order Detail",
     "orderNumber": "Order Number",
     "package": "Package",
+    "items": "Packages",
     "amount": "Amount",
     "status": "Status",
     "createdAt": "Created",
@@ -286,7 +334,8 @@
     "passwordMinLength": "Password must be at least 8 characters.",
     "firstNameRequired": "First name is required.",
     "lastNameRequired": "Last name is required.",
-    "invalidEmail": "Invalid email address."
+    "invalidEmail": "Invalid email address.",
+    "phoneRequired": "Phone number is required."
   },
   "success": {
     "login": "Welcome back!",

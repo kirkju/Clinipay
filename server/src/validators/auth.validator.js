@@ -43,8 +43,9 @@ const registerValidation = [
     .isLength({ max: 100 })
     .withMessage('Last name must not exceed 100 characters.'),
   body('phone')
-    .optional({ nullable: true, checkFalsy: true })
     .trim()
+    .notEmpty()
+    .withMessage('Phone number is required.')
     .isLength({ max: 20 })
     .withMessage('Phone number must not exceed 20 characters.'),
   body('preferred_language')

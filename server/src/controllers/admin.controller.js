@@ -27,7 +27,7 @@ const AdminController = {
 
   /**
    * GET /api/admin/orders/:id
-   * Full order detail including status history.
+   * Full order detail including items with patient info and status history.
    */
   async getOrderDetail(req, res, next) {
     try {

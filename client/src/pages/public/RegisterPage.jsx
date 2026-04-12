@@ -7,6 +7,8 @@ import { googleLogin } from '../../services/auth.service';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import toast from 'react-hot-toast';
+import SEOHead from '../../components/seo/SEOHead';
+import { trackEvent } from '../../hooks/usePageTracking';
 
 function getPasswordStrength(password) {
   let score = 0;
@@ -53,6 +55,7 @@ export default function RegisterPage() {
     else if (form.password.length < 8) errs.password = t('errors.passwordMinLength');
     if (form.password !== form.confirmPassword)
       errs.confirmPassword = t('errors.passwordMismatch');
+    if (!form.phone.trim()) errs.phone = t('errors.phoneRequired');
     return errs;
   }
 
@@ -66,6 +69,7 @@ export default function RegisterPage() {
     try {
       const { confirmPassword, ...data } = form;
       await register(data);
+      trackEvent('sign_up', { method: 'email' });
       toast.success(t('success.register'));
       navigate('/');
     } catch (err) {
@@ -82,6 +86,11 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
+      <SEOHead
+        title="Crear Cuenta — CLINIPAY"
+        description="Regístrate en CLINIPAY para comprar paquetes médicos en línea de forma segura y rápida."
+        path="/register"
+      />
       <div className="w-full max-w-md animate-fade-in-up">
         <div className="text-center mb-8">
           <h1 className="font-display text-[28px] leading-[34px] sm:text-[36px] sm:leading-[42px] font-bold text-slate-800 mb-3">
@@ -181,6 +190,7 @@ export default function RegisterPage() {
               icon={Phone}
               value={form.phone}
               onChange={handleChange('phone')}
+              error={errors.phone}
             />
 
             <Button type="submit" loading={loading} className="w-full">

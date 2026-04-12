@@ -8,6 +8,7 @@ import {
   togglePackage,
 } from '../../services/admin.service';
 import { formatCurrency } from '../../utils/constants';
+import SEOHead from '../../components/seo/SEOHead';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
 import Input from '../../components/ui/Input';
@@ -181,6 +182,7 @@ export default function AdminPackagesPage() {
 
   return (
     <div>
+      <SEOHead title="Admin — CLINIPAY" path="/admin/packages" noIndex />
       <div className="flex items-center justify-between mb-6">
         <h1 className="font-display text-xl sm:text-2xl font-bold text-slate-800">
           {t('admin.packages.title')}

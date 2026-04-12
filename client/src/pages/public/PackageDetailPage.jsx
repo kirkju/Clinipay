@@ -1,18 +1,23 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, CheckCircle, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, CheckCircle, ShoppingCart, ShoppingBag } from 'lucide-react';
 import { getPackageById } from '../../services/packages.service';
 import { formatCurrency } from '../../utils/constants';
 import { useAuth } from '../../context/AuthContext';
+import { useCart } from '../../context/CartContext';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
+import SEOHead from '../../components/seo/SEOHead';
+import { trackEvent } from '../../hooks/usePageTracking';
+import toast from 'react-hot-toast';
 
 export default function PackageDetailPage() {
   const { id } = useParams();
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const { addToCart } = useCart();
   const [pkg, setPkg] = useState(null);
   const [loading, setLoading] = useState(true);
   const lang = i18n.language?.startsWith('en') ? 'en' : 'es';
@@ -20,6 +25,13 @@ export default function PackageDetailPage() {
   useEffect(() => {
     fetchPackage();
   }, [id]);
+
+  useEffect(() => {
+    if (pkg) {
+      const name = pkg[`name_${lang}`] || pkg.name_es;
+      trackEvent('view_item', { item_id: id, item_name: name, price: pkg.price });
+    }
+  }, [pkg, id, lang]);
 
   async function fetchPackage() {
     try {
@@ -32,11 +44,18 @@ export default function PackageDetailPage() {
     }
   }
 
-  function handleBuy() {
+  function handleAddToCart() {
+    addToCart(pkg);
+    trackEvent('add_to_cart', { item_id: id, price: pkg.price });
+    toast.success(t('cart.added'));
+  }
+
+  function handleBuyNow() {
+    addToCart(pkg);
     if (!isAuthenticated) {
-      navigate('/login', { state: { returnUrl: `/checkout/${id}` } });
+      navigate('/login', { state: { returnUrl: '/checkout' } });
     } else {
-      navigate(`/checkout/${id}`);
+      navigate('/checkout');
     }
   }
 
@@ -63,9 +82,33 @@ export default function PackageDetailPage() {
   }
 
   const includes = pkg[`includes_${lang}`] || pkg.includes_es || [];
+  const pkgName = pkg[`name_${lang}`] || pkg.name_es;
+  const pkgDesc = pkg[`description_${lang}`] || pkg.description_es;
+
+  const productSD = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: pkgName,
+    description: pkgDesc,
+    category: 'Medical Services',
+    offers: {
+      '@type': 'Offer',
+      price: String(pkg.price),
+      priceCurrency: pkg.currency || 'USD',
+      availability: 'https://schema.org/InStock',
+      url: `https://clinipay.com/packages/${id}`,
+    },
+    provider: { '@type': 'MedicalBusiness', name: 'CLINIPAY' },
+  };
 
   return (
     <div className="w-full max-w-[900px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+      <SEOHead
+        title={`${pkgName} — CLINIPAY`}
+        description={`${pkgDesc}. Incluye: ${includes.slice(0, 3).join(', ')}. Compra en línea por $${pkg.price} USD.`}
+        path={`/packages/${id}`}
+        structuredData={productSD}
+      />
       <Link
         to="/packages"
         className="inline-flex items-center gap-2 text-slate-500 hover:text-mint-600 transition-colors mb-8 text-sm font-medium"
@@ -78,7 +121,7 @@ export default function PackageDetailPage() {
         {/* Header gradient */}
         <div className="bg-gradient-to-br from-mint-400 to-mint-600 px-6 sm:px-8 py-8 sm:py-10">
           <h1 className="font-display text-2xl sm:text-3xl font-bold text-white mb-3">
-            {pkg[`name_${lang}`] || pkg.name_es}
+            {pkgName}
           </h1>
           <div className="flex items-baseline gap-2">
             <span className="text-4xl sm:text-5xl font-bold text-white">
@@ -89,7 +132,7 @@ export default function PackageDetailPage() {
 
         <div className="p-6 sm:p-8">
           <p className="text-slate-600 text-base leading-relaxed mb-8 font-body">
-            {pkg[`description_${lang}`] || pkg.description_es}
+            {pkgDesc}
           </p>
 
           <div className="mb-8">
@@ -106,10 +149,16 @@ export default function PackageDetailPage() {
             </ul>
           </div>
 
-          <Button onClick={handleBuy} size="lg" className="gap-2">
-            <ShoppingCart className="w-5 h-5" />
-            {t('packageDetail.buyNow')}
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button onClick={handleAddToCart} variant="secondary" size="lg" className="gap-2">
+              <ShoppingCart className="w-5 h-5" />
+              {t('cart.addToCart')}
+            </Button>
+            <Button onClick={handleBuyNow} size="lg" className="gap-2">
+              <ShoppingBag className="w-5 h-5" />
+              {t('packageDetail.buyNow')}
+            </Button>
+          </div>
         </div>
       </div>
     </div>

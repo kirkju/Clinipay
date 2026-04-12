@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Package, CheckCircle } from 'lucide-react';
+import { Package, CheckCircle, ShoppingCart } from 'lucide-react';
 import { getActivePackages } from '../../services/packages.service';
 import { formatCurrency } from '../../utils/constants';
+import { useCart } from '../../context/CartContext';
 import Spinner from '../../components/ui/Spinner';
+import SEOHead from '../../components/seo/SEOHead';
+import toast from 'react-hot-toast';
 
 function SkeletonCard() {
   return (
@@ -27,6 +30,7 @@ function SkeletonCard() {
 
 export default function CatalogPage() {
   const { t, i18n } = useTranslation();
+  const { addToCart } = useCart();
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
   const lang = i18n.language?.startsWith('en') ? 'en' : 'es';
@@ -46,8 +50,37 @@ export default function CatalogPage() {
     }
   }
 
+  const catalogSD = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Paquetes Médicos',
+    description: 'Catálogo de paquetes médicos disponibles en CLINIPAY',
+    numberOfItems: packages.length,
+    itemListElement: packages.map((pkg, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      item: {
+        '@type': 'Product',
+        name: pkg[`name_${lang}`] || pkg.name_es,
+        description: pkg[`description_${lang}`] || pkg.description_es,
+        offers: {
+          '@type': 'Offer',
+          price: String(pkg.price),
+          priceCurrency: pkg.currency || 'USD',
+          availability: 'https://schema.org/InStock',
+        },
+      },
+    })),
+  };
+
   return (
     <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-16">
+      <SEOHead
+        title="Paquetes Médicos — CLINIPAY"
+        description="Explora nuestro catálogo de paquetes médicos. Encuentra el servicio de salud que necesitas y compra en línea de forma segura."
+        path="/packages"
+        structuredData={!loading && packages.length > 0 ? catalogSD : undefined}
+      />
       <div className="text-center mb-10 sm:mb-12">
         <h1 className="font-display text-[28px] leading-[34px] sm:text-[36px] sm:leading-[42px] font-bold text-slate-800 mb-3">
           {t('catalog.title')}
@@ -112,13 +145,24 @@ export default function CatalogPage() {
                 </div>
 
                 {/* Footer CTA */}
-                <div className="p-5 sm:p-6 pt-0">
+                <div className="p-5 sm:p-6 pt-0 space-y-2">
                   <Link
                     to={`/packages/${pkg.id}`}
                     className="block w-full bg-mint-500 hover:bg-mint-600 text-white font-semibold py-3 rounded-xl transition-all duration-200 group-hover:shadow-md text-center text-sm sm:text-base"
                   >
                     {t('catalog.viewDetails')}
                   </Link>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addToCart(pkg);
+                      toast.success(t('cart.added'));
+                    }}
+                    className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border-2 border-mint-500 text-mint-600 hover:bg-mint-50 font-semibold transition-all duration-200 text-sm sm:text-base cursor-pointer"
+                  >
+                    <ShoppingCart className="w-4 h-4" />
+                    {t('cart.addToCart')}
+                  </button>
                 </div>
               </div>
             );

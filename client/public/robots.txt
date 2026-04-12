@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /cart
+Disallow: /checkout
+Disallow: /my-orders/
+Disallow: /forgot-password
+Disallow: /reset-password/
+Disallow: /api/
+
+Sitemap: https://clinipay.com/sitemap.xml

@@ -1,13 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Menu, X, ChevronDown, User, LogOut, ShoppingBag, Shield, Globe, Home, Package } from 'lucide-react';
+import { Menu, X, ChevronDown, User, LogOut, ShoppingBag, ShoppingCart, Shield, Globe, Home, Package } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useCart } from '../../context/CartContext';
 import toast from 'react-hot-toast';
 
 export default function Navbar() {
   const { t, i18n } = useTranslation();
   const { user, isAuthenticated, logout } = useAuth();
+  const { cartCount } = useCart();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -95,6 +97,19 @@ export default function Navbar() {
                 {currentLang.toUpperCase()}
               </button>
 
+              {/* Cart icon */}
+              <Link
+                to="/cart"
+                className="relative p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-all duration-200"
+              >
+                <ShoppingCart className="w-5 h-5" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-mint-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {cartCount > 9 ? '9+' : cartCount}
+                  </span>
+                )}
+              </Link>
+
               {isAuthenticated ? (
                 <div className="relative" ref={userMenuRef}>
                   <button
@@ -151,13 +166,26 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Mobile hamburger */}
-            <button
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-mint-500"
-            >
-              <Menu className="w-6 h-6" />
-            </button>
+            {/* Mobile: cart + hamburger */}
+            <div className="flex md:hidden items-center gap-2">
+              <Link
+                to="/cart"
+                className="relative p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
+              >
+                <ShoppingCart className="w-5 h-5" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-mint-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {cartCount > 9 ? '9+' : cartCount}
+                  </span>
+                )}
+              </Link>
+              <button
+                onClick={() => setMobileOpen(!mobileOpen)}
+                className="p-2 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-mint-500"
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+            </div>
           </div>
         </div>
       </nav>
@@ -199,6 +227,19 @@ export default function Navbar() {
               >
                 <Package className="w-5 h-5 text-slate-400" />
                 {t('navbar.catalog')}
+              </Link>
+              <Link
+                to="/cart"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-50 font-medium transition-colors"
+              >
+                <ShoppingCart className="w-5 h-5 text-slate-400" />
+                {t('navbar.cart')}
+                {cartCount > 0 && (
+                  <span className="ml-auto bg-mint-100 text-mint-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                    {cartCount}
+                  </span>
+                )}
               </Link>
 
               {isAuthenticated && (

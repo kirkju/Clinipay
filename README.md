@@ -1,6 +1,6 @@
 # CLINIPAY - Medical Packages Marketplace
 
-CLINIPAY is a bilingual (Spanish/English) web platform for purchasing medical service packages online. Built for the Panamanian healthcare market, it allows patients to browse, compare, and pay for curated medical packages through a modern, secure interface.
+CLINIPAY is a bilingual (Spanish/English) web platform for purchasing medical service packages online. Built for the Honduran healthcare market, it allows patients to browse, compare, and pay for curated medical packages through a modern, secure interface.
 
 ## Tech Stack
 

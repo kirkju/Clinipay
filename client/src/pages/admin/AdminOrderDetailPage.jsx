@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Clock } from 'lucide-react';
+import { ArrowLeft, Clock, User } from 'lucide-react';
 import { getOrderDetail, updateOrderStatus } from '../../services/admin.service';
 import { formatCurrency, formatDate, VALID_TRANSITIONS } from '../../utils/constants';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
 import toast from 'react-hot-toast';
+import SEOHead from '../../components/seo/SEOHead';
 
 export default function AdminOrderDetailPage() {
   const { id } = useParams();
@@ -70,9 +71,11 @@ export default function AdminOrderDetailPage() {
 
   const validTransitions = VALID_TRANSITIONS[order.status] || [];
   const statusHistory = order.status_history || [];
+  const items = order.items || [];
 
   return (
     <div>
+      <SEOHead title="Admin — CLINIPAY" path={`/admin/orders/${id}`} noIndex />
       <Link
         to="/admin/orders"
         className="inline-flex items-center gap-2 text-slate-500 hover:text-mint-600 transition-colors mb-6 text-sm font-medium"
@@ -88,6 +91,7 @@ export default function AdminOrderDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Order Info */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Order header */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-card p-5 sm:p-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
               <div>
@@ -101,14 +105,6 @@ export default function AdminOrderDetailPage() {
                   {t('orderDetail.status')}
                 </label>
                 <Badge status={order.status} />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">
-                  {t('orderDetail.package')}
-                </label>
-                <p className="text-slate-700 font-medium">
-                  {order.package?.[`name_${lang}`] || order.package?.name_es || '-'}
-                </p>
               </div>
               <div>
                 <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">
@@ -146,25 +142,110 @@ export default function AdminOrderDetailPage() {
                   {t('checkout.name')}
                 </label>
                 <p className="text-slate-700 text-sm">
-                  {order.user?.first_name} {order.user?.last_name}
+                  {order.user_first_name} {order.user_last_name}
                 </p>
               </div>
               <div>
                 <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">
                   {t('checkout.email')}
                 </label>
-                <p className="text-slate-700 text-sm">{order.user?.email}</p>
+                <p className="text-slate-700 text-sm">{order.user_email}</p>
               </div>
-              {order.user?.phone && (
+              {order.user_phone && (
                 <div>
                   <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">
                     {t('checkout.phone')}
                   </label>
-                  <p className="text-slate-700 text-sm">{order.user.phone}</p>
+                  <p className="text-slate-700 text-sm">{order.user_phone}</p>
                 </div>
               )}
             </div>
           </div>
+
+          {/* Order Items with Patient Info */}
+          {items.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="font-display text-base sm:text-lg font-semibold text-slate-800">
+                {t('orderDetail.items')} ({items.length})
+              </h3>
+              {items.map((item, idx) => (
+                <div key={item.id || idx} className="bg-white rounded-xl border border-slate-200 shadow-card p-5 sm:p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h4 className="font-display font-semibold text-slate-800">
+                        {item[`package_name_${lang}`] || item.package_name_es}
+                      </h4>
+                      <p className="text-lg font-bold text-mint-600 mt-0.5">
+                        {formatCurrency(item.unit_price, item.currency)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Patient info */}
+                  <div className="bg-slate-50 rounded-lg p-4">
+                    <h5 className="text-sm font-medium text-slate-500 mb-3 flex items-center gap-1.5">
+                      <User className="w-4 h-4" />
+                      {t('patient.title')}
+                    </h5>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-xs text-slate-400 uppercase tracking-wider mb-0.5">
+                          {t('patient.fullName')}
+                        </label>
+                        <p className="text-sm font-medium text-slate-700">{item.patient_first_name} {item.patient_last_name}</p>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-slate-400 uppercase tracking-wider mb-0.5">
+                          {t('patient.phone')}
+                        </label>
+                        <p className="text-sm text-slate-700">{item.patient_phone}</p>
+                      </div>
+                      {item.patient_birth_date && (
+                        <div>
+                          <label className="block text-xs text-slate-400 uppercase tracking-wider mb-0.5">
+                            {t('patient.birthDate')}
+                          </label>
+                          <p className="text-sm text-slate-700">{formatDate(item.patient_birth_date).split(',')[0]}</p>
+                        </div>
+                      )}
+                      {item.patient_id_number && (
+                        <div>
+                          <label className="block text-xs text-slate-400 uppercase tracking-wider mb-0.5">
+                            {t('patient.idNumber')}
+                          </label>
+                          <p className="text-sm text-slate-700">{item.patient_id_number}</p>
+                        </div>
+                      )}
+                      {item.patient_email && (
+                        <div>
+                          <label className="block text-xs text-slate-400 uppercase tracking-wider mb-0.5">
+                            {t('patient.email')}
+                          </label>
+                          <p className="text-sm text-slate-700">{item.patient_email}</p>
+                        </div>
+                      )}
+                      {item.patient_relationship && (
+                        <div>
+                          <label className="block text-xs text-slate-400 uppercase tracking-wider mb-0.5">
+                            {t('patient.relationship')}
+                          </label>
+                          <p className="text-sm text-slate-700">{t(`patient.relationships.${item.patient_relationship}`)}</p>
+                        </div>
+                      )}
+                      {item.patient_notes && (
+                        <div className="sm:col-span-2 lg:col-span-3">
+                          <label className="block text-xs text-slate-400 uppercase tracking-wider mb-0.5">
+                            {t('patient.notes')}
+                          </label>
+                          <p className="text-sm text-slate-700">{item.patient_notes}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Status History */}
           {statusHistory.length > 0 && (
@@ -180,7 +261,7 @@ export default function AdminOrderDetailPage() {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <Badge status={entry.status} />
+                        <Badge status={entry.new_status || entry.status} />
                         <span className="text-xs text-slate-400">
                           {formatDate(entry.changed_at || entry.created_at)}
                         </span>
@@ -188,9 +269,9 @@ export default function AdminOrderDetailPage() {
                       {entry.notes && (
                         <p className="text-sm text-slate-600 font-body">{entry.notes}</p>
                       )}
-                      {entry.changed_by_name && (
+                      {(entry.changed_by_first_name || entry.changed_by_name) && (
                         <p className="text-xs text-slate-400 mt-1">
-                          {entry.changed_by_name}
+                          {entry.changed_by_first_name ? `${entry.changed_by_first_name} ${entry.changed_by_last_name || ''}` : entry.changed_by_name}
                         </p>
                       )}
                     </div>

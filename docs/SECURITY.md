@@ -191,7 +191,7 @@ The refresh token cookie is configured with:
 Deploy a WAF (Cloudflare, AWS WAF, Azure WAF) in front of the application to:
 - Block known attack patterns (SQL injection, XSS, path traversal).
 - Provide DDoS protection.
-- Enforce geographic restrictions if the service is region-specific (Panama).
+- Enforce geographic restrictions if the service is region-specific (Honduras).
 
 ### Monitoring & Alerting
 

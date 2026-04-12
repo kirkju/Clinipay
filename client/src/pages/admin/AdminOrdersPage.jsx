@@ -8,6 +8,7 @@ import Badge from '../../components/ui/Badge';
 import Table from '../../components/ui/Table';
 import Spinner from '../../components/ui/Spinner';
 import Button from '../../components/ui/Button';
+import SEOHead from '../../components/seo/SEOHead';
 
 export default function AdminOrdersPage() {
   const { t, i18n } = useTranslation();
@@ -75,20 +76,25 @@ export default function AdminOrdersPage() {
     t('admin.orders.date'),
   ];
 
-  const rows = orders.map((order) => ({
-    id: order.id,
-    cells: [
-      <span className="font-mono text-sm font-medium text-slate-800">{order.order_number}</span>,
-      <span className="text-slate-700">{order.user?.first_name} {order.user?.last_name}</span>,
-      <span className="text-slate-600">{order.package?.[`name_${lang}`] || order.package?.name_es || '-'}</span>,
-      <span className="font-semibold text-slate-800">{formatCurrency(order.total_amount, order.currency)}</span>,
-      <Badge status={order.status} />,
-      <span className="text-slate-500 text-sm">{formatDate(order.created_at)}</span>,
-    ],
-  }));
+  const rows = orders.map((order) => {
+    const pkgName = order[`first_package_name_${lang}`] || order.first_package_name_es || '-';
+    const label = order.item_count > 1 ? `${pkgName} +${order.item_count - 1}` : pkgName;
+    return {
+      id: order.id,
+      cells: [
+        <span className="font-mono text-sm font-medium text-slate-800">{order.order_number}</span>,
+        <span className="text-slate-700">{order.user_first_name} {order.user_last_name}</span>,
+        <span className="text-slate-600">{label}</span>,
+        <span className="font-semibold text-slate-800">{formatCurrency(order.total_amount, order.currency)}</span>,
+        <Badge status={order.status} />,
+        <span className="text-slate-500 text-sm">{formatDate(order.created_at)}</span>,
+      ],
+    };
+  });
 
   return (
     <div>
+      <SEOHead title="Admin — CLINIPAY" path="/admin/orders" noIndex />
       <h1 className="font-display text-xl sm:text-2xl font-bold text-slate-800 mb-6">
         {t('admin.orders.title')}
       </h1>

@@ -1,12 +1,12 @@
 import api from './api';
 
-export async function createOrder(packageId) {
-  const { data } = await api.post('/orders', { packageId });
+export async function createOrder(items) {
+  const { data } = await api.post('/orders', { items });
   return data;
 }
 
 export async function getMyOrders() {
-  const { data } = await api.get('/orders/my');
+  const { data } = await api.get('/orders/my-orders');
   return data;
 }
 

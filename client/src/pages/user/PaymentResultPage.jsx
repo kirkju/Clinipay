@@ -1,7 +1,10 @@
+import { useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle, XCircle } from 'lucide-react';
 import Button from '../../components/ui/Button';
+import SEOHead from '../../components/seo/SEOHead';
+import { trackEvent } from '../../hooks/usePageTracking';
 
 export default function PaymentResultPage() {
   const { t } = useTranslation();
@@ -10,8 +13,15 @@ export default function PaymentResultPage() {
   const orderId = searchParams.get('orderId');
   const isSuccess = status === 'success';
 
+  useEffect(() => {
+    if (isSuccess && orderId) {
+      trackEvent('purchase', { transaction_id: orderId, value: 0 });
+    }
+  }, [isSuccess, orderId]);
+
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4 py-12">
+      <SEOHead title="Resultado del Pago — CLINIPAY" path="/payment/result" noIndex />
       <div className="w-full max-w-md text-center animate-fade-in-up">
         <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-8 sm:p-10">
           {isSuccess ? (

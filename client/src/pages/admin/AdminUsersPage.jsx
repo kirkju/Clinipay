@@ -5,6 +5,7 @@ import { getUsers } from '../../services/admin.service';
 import { formatDate } from '../../utils/constants';
 import Table from '../../components/ui/Table';
 import Spinner from '../../components/ui/Spinner';
+import SEOHead from '../../components/seo/SEOHead';
 
 export default function AdminUsersPage() {
   const { t } = useTranslation();
@@ -55,6 +56,7 @@ export default function AdminUsersPage() {
 
   return (
     <div>
+      <SEOHead title="Admin — CLINIPAY" path="/admin/users" noIndex />
       <h1 className="font-display text-xl sm:text-2xl font-bold text-slate-800 mb-6">
         {t('admin.users.title')}
       </h1>

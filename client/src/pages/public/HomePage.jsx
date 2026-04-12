@@ -5,6 +5,7 @@ import { Package, CreditCard, CalendarCheck, ArrowRight, CheckCircle } from 'luc
 import { getActivePackages } from '../../services/packages.service';
 import { formatCurrency } from '../../utils/constants';
 import Spinner from '../../components/ui/Spinner';
+import SEOHead from '../../components/seo/SEOHead';
 
 export default function HomePage() {
   const { t, i18n } = useTranslation();
@@ -33,8 +34,25 @@ export default function HomePage() {
     { icon: CalendarCheck, titleKey: 'step3Title', descKey: 'step3Desc' },
   ];
 
+  const organizationSD = {
+    '@context': 'https://schema.org',
+    '@type': 'MedicalBusiness',
+    name: 'CLINIPAY',
+    url: 'https://clinipay.com',
+    logo: 'https://clinipay.com/logo.png',
+    description: 'Plataforma de venta de paquetes médicos en línea',
+    address: { '@type': 'PostalAddress', addressCountry: 'HN' },
+    sameAs: [],
+  };
+
   return (
     <div>
+      <SEOHead
+        title="CLINIPAY — Paquetes Médicos en Línea"
+        description="Compra paquetes médicos en línea de forma segura. Chequeos, exámenes y servicios de salud con pago en línea. Atención de calidad al mejor precio."
+        path="/"
+        structuredData={organizationSD}
+      />
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-mint-50 via-white to-mint-100/40">
         <div className="absolute top-0 right-0 w-96 h-96 bg-mint-200/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />

@@ -1,5 +1,26 @@
 const { getPool, sql } = require('../config/db');
 
+// includes_es / includes_en are persisted as JSON strings. Parse them back to
+// arrays on read so every consumer (catalog, detail, checkout, admin) gets the
+// shape it expects. Tolerate nulls and already-parsed values.
+function parseIncludes(pkg) {
+  if (!pkg) return pkg;
+  for (const key of ['includes_es', 'includes_en']) {
+    const value = pkg[key];
+    if (value == null) {
+      pkg[key] = [];
+    } else if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value);
+        pkg[key] = Array.isArray(parsed) ? parsed : [];
+      } catch {
+        pkg[key] = [];
+      }
+    }
+  }
+  return pkg;
+}
+
 const PackageModel = {
   /**
    * Get all active packages, ordered by display_order.
@@ -8,7 +29,7 @@ const PackageModel = {
     const pool = await getPool();
     const result = await pool.request()
       .query('SELECT * FROM packages WHERE is_active = 1 ORDER BY display_order ASC');
-    return result.recordset;
+    return result.recordset.map(parseIncludes);
   },
 
   /**
@@ -18,7 +39,7 @@ const PackageModel = {
     const pool = await getPool();
     const result = await pool.request()
       .query('SELECT * FROM packages ORDER BY display_order ASC');
-    return result.recordset;
+    return result.recordset.map(parseIncludes);
   },
 
   /**
@@ -29,7 +50,7 @@ const PackageModel = {
     const result = await pool.request()
       .input('id', sql.Int, id)
       .query('SELECT * FROM packages WHERE id = @id');
-    return result.recordset[0] || null;
+    return parseIncludes(result.recordset[0]) || null;
   },
 
   /**
@@ -52,7 +73,7 @@ const PackageModel = {
         OUTPUT INSERTED.*
         VALUES (@name_es, @name_en, @description_es, @description_en, @price, @currency, @includes_es, @includes_en, @display_order)
       `);
-    return result.recordset[0];
+    return parseIncludes(result.recordset[0]);
   },
 
   /**
@@ -111,7 +132,7 @@ const PackageModel = {
     const result = await request.query(`
       UPDATE packages SET ${fields.join(', ')} OUTPUT INSERTED.* WHERE id = @id
     `);
-    return result.recordset[0] || null;
+    return parseIncludes(result.recordset[0]) || null;
   },
 
   /**
@@ -127,7 +148,7 @@ const PackageModel = {
         OUTPUT INSERTED.*
         WHERE id = @id
       `);
-    return result.recordset[0] || null;
+    return parseIncludes(result.recordset[0]) || null;
   },
 };
 

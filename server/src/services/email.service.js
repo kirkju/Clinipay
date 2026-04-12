@@ -118,34 +118,45 @@ const EmailService = {
 
   /**
    * Send an order confirmation to the customer.
+   * @param {Object} user
+   * @param {Object} order - order header with total_amount, currency, order_number
+   * @param {Array}  items - order items with package names and patient info
+   * @param {string} language
    */
-  async sendOrderConfirmation(user, order, packageData, language = 'es') {
+  async sendOrderConfirmation(user, order, items, language = 'es') {
     const isEs = language === 'es';
-    const pkgName = isEs ? packageData.name_es : packageData.name_en;
+    const total = Number(order.total_amount).toFixed(2);
+
+    const itemRows = items.map((item, idx) => {
+      const pkgName = isEs ? item.package_name_es : (item.package_name_en || item.package_name_es);
+      const bg = idx % 2 === 0 ? 'background-color:#f9f9f9;' : '';
+      return `<tr style="${bg}"><td style="color:#333;padding:8px;">${pkgName}</td><td style="color:#333;padding:8px;">${item.patient_first_name} ${item.patient_last_name}</td><td style="color:#333;padding:8px;">${item.currency || order.currency} ${Number(item.unit_price).toFixed(2)}</td></tr>`;
+    }).join('');
+
     const subject = isEs
       ? `Confirmaci\u00f3n de orden ${order.order_number} - CLINIPAY`
       : `Order confirmation ${order.order_number} - CLINIPAY`;
     const body = isEs
       ? `<h2 style="color:${BRAND_COLOR};margin-top:0;">Hola ${user.first_name},</h2>
-         <p style="font-size:16px;color:#333333;line-height:1.6;">
-           Tu orden ha sido creada exitosamente. A continuaci&oacute;n los detalles:
-         </p>
+         <p style="font-size:16px;color:#333333;line-height:1.6;">Tu orden ha sido creada exitosamente.</p>
          <table role="presentation" width="100%" cellpadding="8" cellspacing="0" style="border:1px solid #e0e0e0;border-radius:6px;margin:16px 0;">
-           <tr style="background-color:#f9f9f9;"><td style="font-weight:bold;color:#555;">N&uacute;mero de Orden</td><td style="color:#333;">${order.order_number}</td></tr>
-           <tr><td style="font-weight:bold;color:#555;">Paquete</td><td style="color:#333;">${pkgName}</td></tr>
-           <tr style="background-color:#f9f9f9;"><td style="font-weight:bold;color:#555;">Monto</td><td style="color:#333;">${order.currency} ${Number(order.amount).toFixed(2)}</td></tr>
-           <tr><td style="font-weight:bold;color:#555;">Estado</td><td style="color:${BRAND_COLOR};font-weight:bold;">Pendiente de pago</td></tr>
+           <tr style="background-color:#f9f9f9;"><td style="font-weight:bold;color:#555;">N&uacute;mero de Orden</td><td colspan="2" style="color:#333;">${order.order_number}</td></tr>
+         </table>
+         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e0e0e0;border-radius:6px;margin:16px 0;">
+           <tr style="background-color:${BRAND_COLOR};"><th style="color:#fff;padding:8px;text-align:left;">Paquete</th><th style="color:#fff;padding:8px;text-align:left;">Paciente</th><th style="color:#fff;padding:8px;text-align:left;">Precio</th></tr>
+           ${itemRows}
+           <tr style="background-color:#f0f0f0;"><td colspan="2" style="font-weight:bold;color:#555;padding:8px;text-align:right;">Total</td><td style="font-weight:bold;color:#333;padding:8px;">${order.currency} ${total}</td></tr>
          </table>
          <p style="font-size:16px;color:#333333;">Gracias por confiar en ${BRAND_NAME}.</p>`
       : `<h2 style="color:${BRAND_COLOR};margin-top:0;">Hello ${user.first_name},</h2>
-         <p style="font-size:16px;color:#333333;line-height:1.6;">
-           Your order has been created successfully. Here are the details:
-         </p>
+         <p style="font-size:16px;color:#333333;line-height:1.6;">Your order has been created successfully.</p>
          <table role="presentation" width="100%" cellpadding="8" cellspacing="0" style="border:1px solid #e0e0e0;border-radius:6px;margin:16px 0;">
-           <tr style="background-color:#f9f9f9;"><td style="font-weight:bold;color:#555;">Order Number</td><td style="color:#333;">${order.order_number}</td></tr>
-           <tr><td style="font-weight:bold;color:#555;">Package</td><td style="color:#333;">${pkgName}</td></tr>
-           <tr style="background-color:#f9f9f9;"><td style="font-weight:bold;color:#555;">Amount</td><td style="color:#333;">${order.currency} ${Number(order.amount).toFixed(2)}</td></tr>
-           <tr><td style="font-weight:bold;color:#555;">Status</td><td style="color:${BRAND_COLOR};font-weight:bold;">Pending payment</td></tr>
+           <tr style="background-color:#f9f9f9;"><td style="font-weight:bold;color:#555;">Order Number</td><td colspan="2" style="color:#333;">${order.order_number}</td></tr>
+         </table>
+         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e0e0e0;border-radius:6px;margin:16px 0;">
+           <tr style="background-color:${BRAND_COLOR};"><th style="color:#fff;padding:8px;text-align:left;">Package</th><th style="color:#fff;padding:8px;text-align:left;">Patient</th><th style="color:#fff;padding:8px;text-align:left;">Price</th></tr>
+           ${itemRows}
+           <tr style="background-color:#f0f0f0;"><td colspan="2" style="font-weight:bold;color:#555;padding:8px;text-align:right;">Total</td><td style="font-weight:bold;color:#333;padding:8px;">${order.currency} ${total}</td></tr>
          </table>
          <p style="font-size:16px;color:#333333;">Thank you for choosing ${BRAND_NAME}.</p>`;
 
@@ -165,10 +176,18 @@ const EmailService = {
 
   /**
    * Notify admins of a new order.
+   * @param {Object} order
+   * @param {Object} user
+   * @param {Array}  items
    */
-  async sendAdminNewOrderNotification(order, user, packageData) {
+  async sendAdminNewOrderNotification(order, user, items) {
     const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || process.env.SMTP_FROM;
     if (!adminEmail) return;
+
+    const total = Number(order.total_amount).toFixed(2);
+    const itemList = items.map(i =>
+      `<li style="margin:4px 0;">${i.package_name_en || i.package_name_es} — ${i.patient_first_name} ${i.patient_last_name} ($${Number(i.unit_price).toFixed(2)})</li>`
+    ).join('');
 
     const subject = `New Order ${order.order_number} - CLINIPAY Admin`;
     const body = `
@@ -176,9 +195,8 @@ const EmailService = {
       <table role="presentation" width="100%" cellpadding="8" cellspacing="0" style="border:1px solid #e0e0e0;border-radius:6px;margin:16px 0;">
         <tr style="background-color:#f9f9f9;"><td style="font-weight:bold;color:#555;">Order Number</td><td style="color:#333;">${order.order_number}</td></tr>
         <tr><td style="font-weight:bold;color:#555;">Customer</td><td style="color:#333;">${user.first_name} ${user.last_name} (${user.email})</td></tr>
-        <tr style="background-color:#f9f9f9;"><td style="font-weight:bold;color:#555;">Package</td><td style="color:#333;">${packageData.name_en}</td></tr>
-        <tr><td style="font-weight:bold;color:#555;">Amount</td><td style="color:#333;">${order.currency} ${Number(order.amount).toFixed(2)}</td></tr>
-        <tr style="background-color:#f9f9f9;"><td style="font-weight:bold;color:#555;">Date</td><td style="color:#333;">${new Date(order.created_at).toISOString()}</td></tr>
+        <tr style="background-color:#f9f9f9;"><td style="font-weight:bold;color:#555;">Items (${items.length})</td><td style="color:#333;"><ul style="margin:0;padding-left:16px;">${itemList}</ul></td></tr>
+        <tr><td style="font-weight:bold;color:#555;">Total</td><td style="color:#333;">${order.currency} ${total}</td></tr>
       </table>`;
 
     const html = emailLayout(subject, body);
