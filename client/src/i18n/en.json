@@ -287,9 +287,14 @@
       "title": "Registered Users",
       "name": "Name",
       "email": "Email",
+      "role": "Role",
       "registrationDate": "Registration Date",
       "orderCount": "Order Count",
-      "noUsers": "No registered users."
+      "actions": "Actions",
+      "noUsers": "No registered users.",
+      "promoteToAdmin": "Make Admin",
+      "demoteToClient": "Remove Admin",
+      "roleUpdated": "Role updated to {{role}}."
     }
   },
   "statuses": {

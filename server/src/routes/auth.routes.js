@@ -38,5 +38,6 @@ router.get('/google/failure', (req, res) => {
 // Protected routes
 router.post('/logout', verifyToken, AuthController.logout);
 router.get('/me', verifyToken, AuthController.getMe);
+router.delete('/me', verifyToken, AuthController.deleteAccount);
 
 module.exports = router;

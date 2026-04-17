@@ -1,7 +1,7 @@
 const OrderModel = require('../models/order.model');
 const PackageModel = require('../models/package.model');
 const UserModel = require('../models/user.model');
-const { VALID_TRANSITIONS } = require('../config/constants');
+const { VALID_TRANSITIONS, ROLES } = require('../config/constants');
 
 const AdminController = {
   // ── Orders ──────────────────────────────────────────────────────
@@ -189,6 +189,28 @@ const AdminController = {
     }
   },
 
+  /**
+   * DELETE /api/admin/packages/:id
+   * Soft-delete a package.
+   */
+  async deletePackage(req, res, next) {
+    try {
+      const id = parseInt(req.params.id, 10);
+      if (isNaN(id)) {
+        return res.status(400).json({ success: false, message: 'Invalid package ID.' });
+      }
+
+      const pkg = await PackageModel.softDelete(id);
+      if (!pkg) {
+        return res.status(404).json({ success: false, message: 'Package not found.' });
+      }
+
+      res.json({ success: true, message: 'Package deleted.', data: { package: pkg } });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   // ── Users ───────────────────────────────────────────────────────
 
   /**
@@ -199,6 +221,69 @@ const AdminController = {
     try {
       const users = await UserModel.getAll();
       res.json({ success: true, data: { users } });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * DELETE /api/admin/users/:id
+   * Soft-delete a user.
+   */
+  async deleteUser(req, res, next) {
+    try {
+      const id = parseInt(req.params.id, 10);
+      if (isNaN(id)) {
+        return res.status(400).json({ success: false, message: 'Invalid user ID.' });
+      }
+
+      // Prevent admin from deleting themselves
+      if (id === req.user.id) {
+        return res.status(400).json({ success: false, message: 'Cannot delete your own account from admin panel.' });
+      }
+
+      const user = await UserModel.softDelete(id);
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found.' });
+      }
+
+      res.json({ success: true, message: 'User deleted.', data: { user } });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * PATCH /api/admin/users/:id/role
+   * Change a user's role (superadmin only).
+   */
+  async updateUserRole(req, res, next) {
+    try {
+      const id = parseInt(req.params.id, 10);
+      if (isNaN(id)) {
+        return res.status(400).json({ success: false, message: 'Invalid user ID.' });
+      }
+
+      const { role } = req.body;
+      const allowedRoles = [ROLES.CLIENT, ROLES.ADMIN];
+      if (!allowedRoles.includes(role)) {
+        return res.status(400).json({
+          success: false,
+          message: `Role must be one of: ${allowedRoles.join(', ')}.`,
+        });
+      }
+
+      // Cannot change own role
+      if (id === req.user.id) {
+        return res.status(400).json({ success: false, message: 'Cannot change your own role.' });
+      }
+
+      const user = await UserModel.updateRole(id, role);
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found.' });
+      }
+
+      res.json({ success: true, message: `User role updated to "${role}".`, data: { user } });
     } catch (error) {
       next(error);
     }

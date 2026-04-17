@@ -287,9 +287,14 @@
       "title": "Usuarios Registrados",
       "name": "Nombre",
       "email": "Correo Electrónico",
+      "role": "Rol",
       "registrationDate": "Fecha de Registro",
       "orderCount": "N° de Pedidos",
-      "noUsers": "No hay usuarios registrados."
+      "actions": "Acciones",
+      "noUsers": "No hay usuarios registrados.",
+      "promoteToAdmin": "Hacer Admin",
+      "demoteToClient": "Quitar Admin",
+      "roleUpdated": "Rol actualizado a {{role}}."
     }
   },
   "statuses": {

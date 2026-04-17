@@ -25,6 +25,7 @@ const VALID_TRANSITIONS = {
 const ROLES = {
   CLIENT: 'client',
   ADMIN: 'admin',
+  SUPERADMIN: 'superadmin',
 };
 
 /**

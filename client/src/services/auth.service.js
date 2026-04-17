@@ -41,6 +41,11 @@ export async function getMe() {
   return data;
 }
 
+export async function deleteAccount() {
+  await api.delete('/auth/me');
+  setAccessToken(null);
+}
+
 export function googleLogin() {
   window.location.href = '/api/auth/google';
 }

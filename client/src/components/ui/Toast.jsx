@@ -8,12 +8,12 @@ export default function Toast() {
         duration: 4000,
         style: {
           background: '#FFFFFF',
-          color: '#1A2A22',
+          color: '#1A3A5C',
           borderRadius: '14px',
-          border: '1px solid #E2E8E4',
+          border: '1px solid #D8DEE7',
           padding: '16px',
           fontSize: '14px',
-          fontFamily: "'Plus Jakarta Sans', sans-serif",
+          fontFamily: "'Nunito', sans-serif",
           boxShadow: '0 8px 30px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)',
         },
         success: {

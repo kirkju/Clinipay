@@ -53,19 +53,30 @@ for (const key of REQUIRED_ENV) {
   }
 }
 
-const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
+const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173,http://127.0.0.1:5173')
   .split(',')
   .map((o) => o.trim());
+
+const isDev = process.env.NODE_ENV !== 'production';
 
 app.use(
   cors({
     origin(origin, callback) {
       // Allow requests with no origin (mobile apps, Postman, etc.)
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      // In dev, allow localhost / LAN IP / ngrok tunnels
+      if (
+        isDev &&
+        /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+)(:\d+)?$/.test(origin)
+      ) {
+        return callback(null, true);
       }
+      if (isDev && /^https:\/\/[a-z0-9-]+\.(ngrok-free\.app|ngrok\.io|ngrok\.app|trycloudflare\.com|loca\.lt)$/.test(origin)) {
+        return callback(null, true);
+      }
+      console.warn('[CORS] Blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
     },
     credentials: true,
   })

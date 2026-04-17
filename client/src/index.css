@@ -1,36 +1,36 @@
 @import "tailwindcss";
 
 @theme {
-  /* === Primarios (Mint) === */
-  --color-mint-50:  #F0FDF7;
-  --color-mint-100: #DCFCE9;
-  --color-mint-200: #BBF7D4;
-  --color-mint-300: #86EFAD;
-  --color-mint-400: #4ADE80;
-  --color-mint-500: #3EB489;
-  --color-mint-600: #16A34A;
-  --color-mint-700: #15803D;
-  --color-mint-800: #166534;
-  --color-mint-900: #14532D;
-  --color-mint-950: #052E16;
+  /* === Primarios (Teal — acento CliniPay) === */
+  --color-mint-50:  #E6FAF8;
+  --color-mint-100: #CCF5F1;
+  --color-mint-200: #99EBE3;
+  --color-mint-300: #5DD9D0;
+  --color-mint-400: #47D0C5;
+  --color-mint-500: #2EC4B6;
+  --color-mint-600: #26A89C;
+  --color-mint-700: #1E8B82;
+  --color-mint-800: #166862;
+  --color-mint-900: #0E4541;
+  --color-mint-950: #072220;
 
-  /* === Secundarios (Forest) === */
-  --color-forest-500: #1B5E3B;
-  --color-forest-600: #164A2F;
-  --color-forest-700: #0F3623;
-  --color-forest-800: #0A2518;
+  /* === Secundarios (Navy — principal CliniPay) === */
+  --color-forest-500: #2A5988;
+  --color-forest-600: #1A3A5C;
+  --color-forest-700: #142E48;
+  --color-forest-800: #0D1F33;
 
-  /* === Neutros (Slate custom) === */
-  --color-slate-50:  #F7FAF8;
-  --color-slate-100: #F0F4F1;
-  --color-slate-200: #E2E8E4;
-  --color-slate-300: #CBD5CE;
-  --color-slate-400: #94A39A;
-  --color-slate-500: #6B7C72;
-  --color-slate-600: #4A5A50;
-  --color-slate-700: #374740;
-  --color-slate-800: #1A2A22;
-  --color-slate-900: #0D1510;
+  /* === Neutros (Gris CliniPay) === */
+  --color-slate-50:  #F5F7FA;
+  --color-slate-100: #EBEEF3;
+  --color-slate-200: #D8DEE7;
+  --color-slate-300: #B7C0CC;
+  --color-slate-400: #8A95A4;
+  --color-slate-500: #6B7A8D;
+  --color-slate-600: #55626F;
+  --color-slate-700: #3F4956;
+  --color-slate-800: #1A3A5C;
+  --color-slate-900: #0D1F33;
 
   /* === Estados === */
   --color-success-50:  #F0FDF4;
@@ -54,8 +54,8 @@
   --color-info-700: #1D4ED8;
 
   /* === Tipografía === */
-  --font-display: 'DM Sans', sans-serif;
-  --font-body:    'Plus Jakarta Sans', sans-serif;
+  --font-display: 'Nunito', sans-serif;
+  --font-body:    'Nunito', sans-serif;
   --font-mono:    'JetBrains Mono', monospace;
 
   /* === Border Radius === */
@@ -72,7 +72,7 @@
   --shadow-elevated:   0 8px 30px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
   --shadow-modal:      0 20px 60px rgba(0,0,0,0.15), 0 4px 16px rgba(0,0,0,0.08);
   --shadow-navbar:     0 1px 3px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.04);
-  --shadow-input-focus: 0 0 0 3px rgba(62,180,137,0.25);
+  --shadow-input-focus: 0 0 0 3px rgba(46,196,182,0.25);
 
   /* === Animations === */
   --animate-fade-in:        fadeIn 0.3s ease-out;

@@ -44,3 +44,18 @@ export async function getUsers() {
   const { data } = await api.get('/admin/users');
   return data;
 }
+
+export async function deletePackage(id) {
+  const { data } = await api.delete(`/admin/packages/${id}`);
+  return data;
+}
+
+export async function deleteUser(id) {
+  const { data } = await api.delete(`/admin/users/${id}`);
+  return data;
+}
+
+export async function updateUserRole(id, role) {
+  const { data } = await api.patch(`/admin/users/${id}/role`, { role });
+  return data;
+}

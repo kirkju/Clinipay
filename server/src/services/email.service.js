@@ -1,6 +1,7 @@
 const { transporter, SMTP_FROM } = require('../config/email');
 
-const BRAND_COLOR = '#3EB489';
+const BRAND_COLOR = '#1A3A5C';
+const BRAND_ACCENT = '#2EC4B6';
 const BRAND_NAME = 'CLINIPAY';
 
 /**
@@ -10,7 +11,7 @@ function emailLayout(title, bodyHtml) {
   return `<!DOCTYPE html>
 <html lang="es">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${title}</title></head>
-<body style="margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background-color:#f4f4f4;">
+<body style="margin:0;padding:0;font-family:'Nunito',Arial,Helvetica,sans-serif;background-color:#F5F7FA;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f4;padding:20px 0;">
     <tr><td align="center">
       <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
@@ -80,7 +81,7 @@ const EmailService = {
            Recibimos una solicitud para restablecer tu contrase&ntilde;a. Haz clic en el bot&oacute;n de abajo para continuar:
          </p>
          <table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px 0;">
-           <tr><td style="background-color:${BRAND_COLOR};border-radius:6px;padding:14px 28px;">
+           <tr><td style="background-color:${BRAND_ACCENT};border-radius:6px;padding:14px 28px;">
              <a href="${resetUrl}" style="color:#ffffff;text-decoration:none;font-size:16px;font-weight:bold;">Restablecer Contrase&ntilde;a</a>
            </td></tr>
          </table>
@@ -93,7 +94,7 @@ const EmailService = {
            We received a request to reset your password. Click the button below to continue:
          </p>
          <table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px 0;">
-           <tr><td style="background-color:${BRAND_COLOR};border-radius:6px;padding:14px 28px;">
+           <tr><td style="background-color:${BRAND_ACCENT};border-radius:6px;padding:14px 28px;">
              <a href="${resetUrl}" style="color:#ffffff;text-decoration:none;font-size:16px;font-weight:bold;">Reset Password</a>
            </td></tr>
          </table>

@@ -30,8 +30,8 @@ async function issueTokens(res, user) {
   // Set httpOnly cookie
   res.cookie('refreshToken', rawRefresh, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    secure: true,
+    sameSite: 'none',
     maxAge: REFRESH_TOKEN_EXPIRY_MS,
     path: '/',
   });
@@ -140,8 +140,8 @@ const AuthController = {
 
       res.clearCookie('refreshToken', {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        secure: true,
+        sameSite: 'none',
         path: '/',
       });
 
@@ -166,8 +166,8 @@ const AuthController = {
       if (!storedToken) {
         res.clearCookie('refreshToken', {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        secure: true,
+        sameSite: 'none',
         path: '/',
       });
         return res.status(401).json({ success: false, message: 'Invalid or expired refresh token.' });
@@ -178,8 +178,8 @@ const AuthController = {
         await TokenModel.revokeToken(hash);
         res.clearCookie('refreshToken', {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        secure: true,
+        sameSite: 'none',
         path: '/',
       });
         return res.status(401).json({ success: false, message: 'User not found or deactivated.' });
@@ -269,6 +269,33 @@ const AuthController = {
       }
 
       res.json({ success: true, data: { user: sanitizeUser(user) } });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * DELETE /api/auth/me
+   * Soft-delete the authenticated user's account.
+   */
+  async deleteAccount(req, res, next) {
+    try {
+      const user = await UserModel.softDelete(req.user.id);
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found.' });
+      }
+
+      // Revoke all tokens
+      await TokenModel.revokeAllUserTokens(req.user.id);
+
+      res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        path: '/',
+      });
+
+      res.json({ success: true, message: 'Account deleted successfully.' });
     } catch (error) {
       next(error);
     }

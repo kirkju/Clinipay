@@ -85,7 +85,7 @@ const OrderModel = {
           u.phone AS user_phone
         FROM orders o
         INNER JOIN users u ON u.id = o.user_id
-        WHERE o.id = @id
+        WHERE o.id = @id AND o.deleted_at IS NULL
       `);
 
     const order = orderResult.recordset[0] || null;
@@ -95,7 +95,7 @@ const OrderModel = {
       .input('order_id', sql.Int, id)
       .query(`
         SELECT * FROM order_items
-        WHERE order_id = @order_id
+        WHERE order_id = @order_id AND deleted_at IS NULL
         ORDER BY id ASC
       `);
 
@@ -117,7 +117,7 @@ const OrderModel = {
           (SELECT TOP 1 oi.package_name_es FROM order_items oi WHERE oi.order_id = o.id ORDER BY oi.id) AS first_package_name_es,
           (SELECT TOP 1 oi.package_name_en FROM order_items oi WHERE oi.order_id = o.id ORDER BY oi.id) AS first_package_name_en
         FROM orders o
-        WHERE o.user_id = @user_id
+        WHERE o.user_id = @user_id AND o.deleted_at IS NULL
         ORDER BY o.created_at DESC
       `);
     return result.recordset;
@@ -130,7 +130,7 @@ const OrderModel = {
     const pool = await getPool();
     const offset = (page - 1) * limit;
 
-    let whereClause = '1=1';
+    let whereClause = 'o.deleted_at IS NULL';
     const request = pool.request()
       .input('limit', sql.Int, limit)
       .input('offset', sql.Int, offset);
@@ -214,7 +214,7 @@ const OrderModel = {
             payment_date = COALESCE(@payment_date, payment_date),
             updated_at = GETUTCDATE()
         OUTPUT INSERTED.*
-        WHERE id = @id
+        WHERE id = @id AND deleted_at IS NULL
       `);
     return result.recordset[0] || null;
   },
@@ -230,7 +230,7 @@ const OrderModel = {
       .query(`
         UPDATE orders SET notes = @notes, updated_at = GETUTCDATE()
         OUTPUT INSERTED.*
-        WHERE id = @id
+        WHERE id = @id AND deleted_at IS NULL
       `);
     return result.recordset[0] || null;
   },
@@ -283,23 +283,23 @@ const OrderModel = {
       .input('order_id', sql.Int, orderId)
       .query(`
         SELECT * FROM order_items
-        WHERE order_id = @order_id
+        WHERE order_id = @order_id AND deleted_at IS NULL
         ORDER BY id ASC
       `);
     return result.recordset;
   },
 
   /**
-   * Get dashboard statistics for admin.
+   * Get dashboard statistics for admin (excludes soft-deleted).
    */
   async getDashboardStats() {
     const pool = await getPool();
     const result = await pool.request().query(`
       SELECT
-        (SELECT COUNT(*) FROM orders) AS total_orders,
-        (SELECT COUNT(*) FROM orders WHERE status = 'pending') AS pending_orders,
-        (SELECT COALESCE(SUM(total_amount), 0) FROM orders WHERE status IN ('paid', 'in_progress', 'completed')) AS total_revenue,
-        (SELECT COUNT(*) FROM users WHERE role = 'client') AS total_users
+        (SELECT COUNT(*) FROM orders WHERE deleted_at IS NULL) AS total_orders,
+        (SELECT COUNT(*) FROM orders WHERE status = 'pending' AND deleted_at IS NULL) AS pending_orders,
+        (SELECT COALESCE(SUM(total_amount), 0) FROM orders WHERE status IN ('paid', 'in_progress', 'completed') AND deleted_at IS NULL) AS total_revenue,
+        (SELECT COUNT(*) FROM users WHERE role = 'client' AND deleted_at IS NULL) AS total_users
     `);
     return result.recordset[0];
   },

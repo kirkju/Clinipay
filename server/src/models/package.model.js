@@ -23,33 +23,33 @@ function parseIncludes(pkg) {
 
 const PackageModel = {
   /**
-   * Get all active packages, ordered by display_order.
+   * Get all active, non-deleted packages, ordered by display_order.
    */
   async findAllActive() {
     const pool = await getPool();
     const result = await pool.request()
-      .query('SELECT * FROM packages WHERE is_active = 1 ORDER BY display_order ASC');
+      .query('SELECT * FROM packages WHERE is_active = 1 AND deleted_at IS NULL ORDER BY display_order ASC');
     return result.recordset.map(parseIncludes);
   },
 
   /**
-   * Get all packages (including inactive) for admin view.
+   * Get all non-deleted packages (including inactive) for admin view.
    */
   async findAll() {
     const pool = await getPool();
     const result = await pool.request()
-      .query('SELECT * FROM packages ORDER BY display_order ASC');
+      .query('SELECT * FROM packages WHERE deleted_at IS NULL ORDER BY display_order ASC');
     return result.recordset.map(parseIncludes);
   },
 
   /**
-   * Find a single package by ID.
+   * Find a single non-deleted package by ID.
    */
   async findById(id) {
     const pool = await getPool();
     const result = await pool.request()
       .input('id', sql.Int, id)
-      .query('SELECT * FROM packages WHERE id = @id');
+      .query('SELECT * FROM packages WHERE id = @id AND deleted_at IS NULL');
     return parseIncludes(result.recordset[0]) || null;
   },
 
@@ -130,13 +130,13 @@ const PackageModel = {
     fields.push('updated_at = GETUTCDATE()');
 
     const result = await request.query(`
-      UPDATE packages SET ${fields.join(', ')} OUTPUT INSERTED.* WHERE id = @id
+      UPDATE packages SET ${fields.join(', ')} OUTPUT INSERTED.* WHERE id = @id AND deleted_at IS NULL
     `);
     return parseIncludes(result.recordset[0]) || null;
   },
 
   /**
-   * Toggle the is_active flag on a package.
+   * Toggle the is_active flag on a non-deleted package.
    */
   async toggleActive(id) {
     const pool = await getPool();
@@ -146,7 +146,23 @@ const PackageModel = {
         UPDATE packages
         SET is_active = CASE WHEN is_active = 1 THEN 0 ELSE 1 END, updated_at = GETUTCDATE()
         OUTPUT INSERTED.*
-        WHERE id = @id
+        WHERE id = @id AND deleted_at IS NULL
+      `);
+    return parseIncludes(result.recordset[0]) || null;
+  },
+
+  /**
+   * Soft-delete a package by setting deleted_at.
+   */
+  async softDelete(id) {
+    const pool = await getPool();
+    const result = await pool.request()
+      .input('id', sql.Int, id)
+      .query(`
+        UPDATE packages
+        SET deleted_at = GETUTCDATE(), is_active = 0, updated_at = GETUTCDATE()
+        OUTPUT INSERTED.*
+        WHERE id = @id AND deleted_at IS NULL
       `);
     return parseIncludes(result.recordset[0]) || null;
   },

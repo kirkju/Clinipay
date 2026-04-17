@@ -135,7 +135,7 @@ export default function Navbar() {
                         <ShoppingBag className="w-4 h-4 text-slate-400" />
                         {t('navbar.myOrders')}
                       </Link>
-                      {user?.role === 'admin' && (
+                      {(user?.role === 'admin' || user?.role === 'superadmin') && (
                         <Link
                           to="/admin"
                           onClick={() => setUserMenuOpen(false)}
@@ -252,7 +252,7 @@ export default function Navbar() {
                     <ShoppingBag className="w-5 h-5 text-slate-400" />
                     {t('navbar.myOrders')}
                   </Link>
-                  {user?.role === 'admin' && (
+                  {(user?.role === 'admin' || user?.role === 'superadmin') && (
                     <Link
                       to="/admin"
                       onClick={() => setMobileOpen(false)}
