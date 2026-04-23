@@ -37,6 +37,14 @@ const createPackageValidation = [
     .optional()
     .isInt({ min: 0 })
     .withMessage('display_order must be a non-negative integer.'),
+  body('discount_percentage')
+    .optional()
+    .isFloat({ min: 0, max: 100 })
+    .withMessage('discount_percentage must be between 0 and 100.'),
+  body('senior_discount_enabled')
+    .optional()
+    .isBoolean()
+    .withMessage('senior_discount_enabled must be boolean.'),
   validate,
 ];
 
@@ -73,6 +81,14 @@ const updatePackageValidation = [
     .optional()
     .isInt({ min: 0 })
     .withMessage('display_order must be a non-negative integer.'),
+  body('discount_percentage')
+    .optional()
+    .isFloat({ min: 0, max: 100 })
+    .withMessage('discount_percentage must be between 0 and 100.'),
+  body('senior_discount_enabled')
+    .optional()
+    .isBoolean()
+    .withMessage('senior_discount_enabled must be boolean.'),
   validate,
 ];
 

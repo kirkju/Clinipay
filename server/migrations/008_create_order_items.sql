@@ -1,12 +1,15 @@
 -- Migration: Create order_items table and refactor orders for multi-item + patient info
 -- CLINIPAY
 
--- 1. Clean existing test data
-IF EXISTS (SELECT 1 FROM order_status_history)
-  DELETE FROM order_status_history;
+-- 1. Clean existing test data (only on first run — skip if order_items already exists)
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='order_items' AND xtype='U')
+BEGIN
+  IF EXISTS (SELECT 1 FROM order_status_history)
+    DELETE FROM order_status_history;
 
-IF EXISTS (SELECT 1 FROM orders)
-  DELETE FROM orders;
+  IF EXISTS (SELECT 1 FROM orders)
+    DELETE FROM orders;
+END
 
 -- 2. Drop package_id FK and column from orders
 IF EXISTS (SELECT * FROM sys.foreign_keys WHERE parent_object_id = OBJECT_ID('orders') AND name LIKE '%package%')

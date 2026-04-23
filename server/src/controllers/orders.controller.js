@@ -3,6 +3,7 @@ const PackageModel = require('../models/package.model');
 const UserModel = require('../models/user.model');
 const PaymentService = require('../services/payment.service');
 const EmailService = require('../services/email.service');
+const { TAX_RATE, round2, effectiveDiscountPct, computeLineAmounts } = require('../config/constants');
 
 const OrdersController = {
   /**
@@ -17,7 +18,8 @@ const OrdersController = {
 
       // Validate each package and build order items
       const orderItems = [];
-      let totalAmount = 0;
+      let subtotal = 0;
+      let discountTotal = 0;
       let currency = 'USD';
 
       for (const item of items) {
@@ -29,7 +31,10 @@ const OrdersController = {
           });
         }
 
-        totalAmount += Number(pkg.price);
+        const { percentage: effectivePct } = effectiveDiscountPct(pkg, item.patient_birth_date);
+        const amounts = computeLineAmounts(pkg.price, effectivePct);
+        subtotal += amounts.unit;
+        discountTotal += amounts.discount;
         currency = pkg.currency || 'USD';
 
         orderItems.push({
@@ -48,6 +53,12 @@ const OrdersController = {
           patient_notes: item.patient_notes || null,
         });
       }
+
+      subtotal = round2(subtotal);
+      discountTotal = round2(discountTotal);
+      const netSubtotal = round2(subtotal - discountTotal);
+      const taxAmount = round2(netSubtotal * TAX_RATE);
+      const totalAmount = round2(netSubtotal + taxAmount);
 
       const orderNumber = await OrderModel.generateOrderNumber();
 

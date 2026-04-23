@@ -3,10 +3,11 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, CheckCircle, ShoppingCart, ShoppingBag } from 'lucide-react';
 import { getPackageById } from '../../services/packages.service';
-import { formatCurrency } from '../../utils/constants';
+import { computePackagePricing } from '../../utils/constants';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import Button from '../../components/ui/Button';
+import PriceDisplay from '../../components/ui/PriceDisplay';
 import Spinner from '../../components/ui/Spinner';
 import SEOHead from '../../components/seo/SEOHead';
 import { trackEvent } from '../../hooks/usePageTracking';
@@ -85,6 +86,8 @@ export default function PackageDetailPage() {
   const pkgName = pkg[`name_${lang}`] || pkg.name_es;
   const pkgDesc = pkg[`description_${lang}`] || pkg.description_es;
 
+  const { net: netPrice } = computePackagePricing(pkg);
+
   const productSD = {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -93,7 +96,7 @@ export default function PackageDetailPage() {
     category: 'Medical Services',
     offers: {
       '@type': 'Offer',
-      price: String(pkg.price),
+      price: String(netPrice),
       priceCurrency: pkg.currency || 'USD',
       availability: 'https://schema.org/InStock',
       url: `https://clinipay.com/packages/${id}`,
@@ -105,7 +108,7 @@ export default function PackageDetailPage() {
     <div className="w-full max-w-[900px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
       <SEOHead
         title={`${pkgName} — CLINIPAY`}
-        description={`${pkgDesc}. Incluye: ${includes.slice(0, 3).join(', ')}. Compra en línea por $${pkg.price} USD.`}
+        description={`${pkgDesc}. Incluye: ${includes.slice(0, 3).join(', ')}. Compra en línea por $${netPrice} ${pkg.currency || 'USD'}.`}
         path={`/packages/${id}`}
         structuredData={productSD}
       />
@@ -123,11 +126,7 @@ export default function PackageDetailPage() {
           <h1 className="font-display text-2xl sm:text-3xl font-bold text-white mb-3">
             {pkgName}
           </h1>
-          <div className="flex items-baseline gap-2">
-            <span className="text-4xl sm:text-5xl font-bold text-white">
-              {formatCurrency(pkg.price, pkg.currency)}
-            </span>
-          </div>
+          <PriceDisplay pkg={pkg} variant="hero" />
         </div>
 
         <div className="p-6 sm:p-8">

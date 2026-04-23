@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
+import { computeCartTotals } from '../utils/constants';
 
 const CartContext = createContext(null);
 const STORAGE_KEY = 'clinipay_cart';
@@ -38,6 +39,7 @@ export function CartProvider({ children }) {
           description_en: pkg.description_en,
           price: pkg.price,
           currency: pkg.currency || 'USD',
+          discount_percentage: Number(pkg.discount_percentage) || 0,
         },
       },
     ]);
@@ -53,7 +55,7 @@ export function CartProvider({ children }) {
 
   const cartCount = items.length;
 
-  const cartTotal = items.reduce((sum, item) => sum + Number(item.snapshot.price), 0);
+  const totals = useMemo(() => computeCartTotals(items), [items]);
 
   return (
     <CartContext.Provider
@@ -63,7 +65,10 @@ export function CartProvider({ children }) {
         removeFromCart,
         clearCart,
         cartCount,
-        cartTotal,
+        cartSubtotal: totals.subtotal,
+        cartDiscount: totals.discount,
+        cartTax: totals.tax,
+        cartTotal: totals.total,
       }}
     >
       {children}

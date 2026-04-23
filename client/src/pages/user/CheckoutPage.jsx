@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CreditCard, AlertTriangle, ArrowLeft, ShoppingCart, CheckCircle } from 'lucide-react';
 import { createOrder, simulatePayment } from '../../services/orders.service';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
-import { formatCurrency } from '../../utils/constants';
+import { formatCurrency, computePackagePricing, computeCartTotals } from '../../utils/constants';
 import PatientForm from '../../components/checkout/PatientForm';
 import Button from '../../components/ui/Button';
+import PriceDisplay from '../../components/ui/PriceDisplay';
 import Modal from '../../components/ui/Modal';
 import Spinner from '../../components/ui/Spinner';
 import toast from 'react-hot-toast';
@@ -29,7 +30,7 @@ export default function CheckoutPage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { items: cartItems, clearCart, cartTotal } = useCart();
+  const { items: cartItems, clearCart } = useCart();
   const lang = i18n.language?.startsWith('en') ? 'en' : 'es';
 
   const [patientForms, setPatientForms] = useState([]);
@@ -37,6 +38,10 @@ export default function CheckoutPage() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [orderId, setOrderId] = useState(null);
+
+  const birthDates = patientForms.map((f) => f?.patient_birth_date || null);
+  const { subtotal: cartSubtotal, discount: cartDiscount, tax: cartTax, total: cartTotal } =
+    useMemo(() => computeCartTotals(cartItems, birthDates), [cartItems, birthDates.join('|')]);
 
   useEffect(() => {
     if (cartItems.length === 0) {
@@ -185,19 +190,47 @@ export default function CheckoutPage() {
               {t('checkout.orderItems')} ({cartItems.length})
             </h2>
             <div className="space-y-3">
-              {cartItems.map((item) => (
-                <div key={item.lineId} className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
-                  <div className="flex items-center gap-2.5">
-                    <CheckCircle className="w-4 h-4 text-mint-500 flex-shrink-0" />
-                    <span className="text-sm text-slate-700">
-                      {item.snapshot[`name_${lang}`] || item.snapshot.name_es}
-                    </span>
+              {cartItems.map((item, idx) => {
+                const pricing = computePackagePricing(item.snapshot, birthDates[idx]);
+                const { net, unit, percentage, tier, hasDiscount } = pricing;
+                const itemCurrency = item.snapshot.currency;
+                const tierLabel =
+                  tier === 'senior' ? t('pricing.seniorTier')
+                  : tier === 'fourth_age' ? t('pricing.fourthAgeTier')
+                  : null;
+                return (
+                  <div key={item.lineId} className="flex flex-col gap-1 py-2 border-b border-slate-100 last:border-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <CheckCircle className="w-4 h-4 text-mint-500 flex-shrink-0" />
+                        <span className="text-sm text-slate-700 truncate">
+                          {item.snapshot[`name_${lang}`] || item.snapshot.name_es}
+                        </span>
+                        {hasDiscount && (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-error-500 text-white text-[10px] font-bold flex-shrink-0">
+                            -{Math.round(percentage)}%
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-baseline gap-2 flex-shrink-0">
+                        {hasDiscount && (
+                          <span className="text-xs text-slate-400 line-through">
+                            {formatCurrency(unit, itemCurrency)}
+                          </span>
+                        )}
+                        <span className="text-sm font-semibold text-slate-800">
+                          {formatCurrency(net, itemCurrency)}
+                        </span>
+                      </div>
+                    </div>
+                    {tierLabel && (
+                      <p className="text-[11px] text-mint-600 font-semibold pl-6">
+                        {t('pricing.ageDiscountApplied')} · {tierLabel}
+                      </p>
+                    )}
                   </div>
-                  <span className="text-sm font-semibold text-slate-800">
-                    {formatCurrency(item.snapshot.price, item.snapshot.currency)}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -232,12 +265,30 @@ export default function CheckoutPage() {
               {t('cart.summary')}
             </h3>
             <div className="space-y-3 mb-6">
-              {cartItems.map((item) => (
-                <div key={item.lineId} className="flex justify-between text-sm text-slate-600">
-                  <span className="truncate pr-2">{item.snapshot[`name_${lang}`] || item.snapshot.name_es}</span>
-                  <span className="flex-shrink-0">{formatCurrency(item.snapshot.price, item.snapshot.currency)}</span>
+              {cartItems.map((item, idx) => {
+                const { net } = computePackagePricing(item.snapshot, birthDates[idx]);
+                return (
+                  <div key={item.lineId} className="flex justify-between text-sm text-slate-600">
+                    <span className="truncate pr-2">{item.snapshot[`name_${lang}`] || item.snapshot.name_es}</span>
+                    <span className="flex-shrink-0">{formatCurrency(net, item.snapshot.currency)}</span>
+                  </div>
+                );
+              })}
+              <hr className="border-slate-100" />
+              <div className="flex justify-between text-sm text-slate-600">
+                <span>{t('cart.subtotal')}</span>
+                <span>{formatCurrency(cartSubtotal, currency)}</span>
+              </div>
+              {cartDiscount > 0 && (
+                <div className="flex justify-between text-sm font-semibold text-error-600">
+                  <span>{t('cart.discount')}</span>
+                  <span>−{formatCurrency(cartDiscount, currency)}</span>
                 </div>
-              ))}
+              )}
+              <div className="flex justify-between text-sm text-slate-600">
+                <span>{t('cart.tax')}</span>
+                <span>{formatCurrency(cartTax, currency)}</span>
+              </div>
               <hr className="border-slate-100" />
               <div className="flex items-center justify-between">
                 <span className="text-base font-medium text-slate-500 font-body">

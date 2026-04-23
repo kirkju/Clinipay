@@ -5,14 +5,24 @@ import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { formatCurrency } from '../../utils/constants';
 import Button from '../../components/ui/Button';
+import PriceDisplay from '../../components/ui/PriceDisplay';
 import SEOHead from '../../components/seo/SEOHead';
 
 export default function CartPage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const { items, removeFromCart, clearCart, cartTotal } = useCart();
+  const {
+    items,
+    removeFromCart,
+    clearCart,
+    cartSubtotal,
+    cartDiscount,
+    cartTax,
+    cartTotal,
+  } = useCart();
   const { isAuthenticated } = useAuth();
   const lang = i18n.language?.startsWith('en') ? 'en' : 'es';
+  const currency = items[0]?.snapshot.currency || 'USD';
 
   function handleCheckout() {
     if (!isAuthenticated) {
@@ -73,9 +83,9 @@ export default function CartPage() {
                   <p className="text-slate-500 text-xs sm:text-sm mt-0.5 line-clamp-1 font-body">
                     {item.snapshot[`description_${lang}`] || item.snapshot.description_es}
                   </p>
-                  <p className="text-lg font-bold text-mint-600 mt-1">
-                    {formatCurrency(item.snapshot.price, item.snapshot.currency)}
-                  </p>
+                  <div className="mt-1">
+                    <PriceDisplay pkg={item.snapshot} variant="default" />
+                  </div>
                 </div>
                 <button
                   onClick={() => removeFromCart(item.lineId)}
@@ -107,13 +117,27 @@ export default function CartPage() {
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between text-sm text-slate-600">
                   <span>{t('cart.items', { count: items.length })}</span>
-                  <span>{formatCurrency(cartTotal, items[0]?.snapshot.currency)}</span>
+                  <span>—</span>
+                </div>
+                <div className="flex justify-between text-sm text-slate-600">
+                  <span>{t('cart.subtotal')}</span>
+                  <span>{formatCurrency(cartSubtotal, currency)}</span>
+                </div>
+                {cartDiscount > 0 && (
+                  <div className="flex justify-between text-sm font-semibold text-error-600">
+                    <span>{t('cart.discount')}</span>
+                    <span>−{formatCurrency(cartDiscount, currency)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-sm text-slate-600">
+                  <span>{t('cart.tax')}</span>
+                  <span>{formatCurrency(cartTax, currency)}</span>
                 </div>
                 <hr className="border-slate-100" />
                 <div className="flex justify-between font-semibold text-slate-800">
                   <span>{t('checkout.total')}</span>
                   <span className="text-xl text-mint-600">
-                    {formatCurrency(cartTotal, items[0]?.snapshot.currency)}
+                    {formatCurrency(cartTotal, currency)}
                   </span>
                 </div>
               </div>

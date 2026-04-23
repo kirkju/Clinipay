@@ -66,8 +66,18 @@
     "clearAll": "Vaciar Carrito",
     "summary": "Resumen del Pedido",
     "items": "{{count}} paquete(s)",
+    "subtotal": "Subtotal",
+    "discount": "Descuento",
+    "tax": "ISV (15%)",
     "proceedCheckout": "Ir al Checkout",
     "backToCart": "Volver al Carrito"
+  },
+  "pricing": {
+    "off": "{{percent}}% OFF",
+    "save": "Ahorras {{amount}}",
+    "seniorTier": "Tercera edad (60+)",
+    "fourthAgeTier": "Cuarta edad (80+)",
+    "ageDiscountApplied": "Descuento por edad aplicado"
   },
   "patient": {
     "title": "Datos del Paciente",
@@ -272,6 +282,10 @@
       "includesEs": "Incluye (Español, uno por línea)",
       "includesEn": "Incluye (Inglés, uno por línea)",
       "displayOrder": "Orden de Visualización",
+      "discountPercentage": "Descuento (%)",
+      "discountHelp": "Entre 0 y 100. Se aplica sobre el precio al agregar al carrito.",
+      "seniorDiscountLabel": "Habilitar descuento por tercera/cuarta edad",
+      "seniorDiscountHelp": "Si está activo, al ingresar la fecha de nacimiento del paciente en el checkout se aplica 25% (60+ años) o 30% (80+ años) automáticamente. Se usa el mayor entre este descuento y el descuento base del paquete.",
       "active": "Activo",
       "inactive": "Inactivo",
       "toggleActive": "Cambiar Estado",

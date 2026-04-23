@@ -15,25 +15,63 @@ const dbConfig = {
   },
 };
 
+const TRACKER_DDL = `
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='schema_migrations' AND xtype='U')
+BEGIN
+  CREATE TABLE schema_migrations (
+    filename   NVARCHAR(255) NOT NULL PRIMARY KEY,
+    applied_at DATETIME2 NOT NULL DEFAULT GETUTCDATE()
+  );
+END
+`;
+
 async function runMigrations() {
   let pool;
   try {
     pool = await sql.connect(dbConfig);
     console.log('Connected to SQL Server');
 
+    await pool.request().query(TRACKER_DDL);
+
+    const appliedResult = await pool.request()
+      .query('SELECT filename FROM schema_migrations');
+    const applied = new Set(appliedResult.recordset.map((r) => r.filename));
+
     const migrationsDir = __dirname;
     const files = fs.readdirSync(migrationsDir)
-      .filter(f => f.endsWith('.sql'))
+      .filter((f) => f.endsWith('.sql'))
       .sort();
 
+    let appliedCount = 0;
+    let skippedCount = 0;
+
     for (const file of files) {
+      if (applied.has(file)) {
+        console.log(`  - ${file} already applied, skipping`);
+        skippedCount++;
+        continue;
+      }
+
       console.log(`Running migration: ${file}`);
       const script = fs.readFileSync(path.join(migrationsDir, file), 'utf8');
-      await pool.request().query(script);
-      console.log(`  ✓ ${file} completed`);
+
+      const transaction = new sql.Transaction(pool);
+      try {
+        await transaction.begin();
+        await new sql.Request(transaction).query(script);
+        await new sql.Request(transaction)
+          .input('filename', sql.NVarChar(255), file)
+          .query('INSERT INTO schema_migrations (filename) VALUES (@filename)');
+        await transaction.commit();
+        console.log(`  ✓ ${file} completed`);
+        appliedCount++;
+      } catch (err) {
+        try { await transaction.rollback(); } catch { /* rollback may fail if txn aborted */ }
+        throw err;
+      }
     }
 
-    console.log('\nAll migrations completed successfully!');
+    console.log(`\nDone: ${appliedCount} applied, ${skippedCount} already up-to-date.`);
   } catch (err) {
     console.error('Migration error:', err.message);
     process.exit(1);

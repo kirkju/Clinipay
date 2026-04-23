@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Package, CreditCard, CalendarCheck, ArrowRight, CheckCircle } from 'lucide-react';
 import { getActivePackages } from '../../services/packages.service';
-import { formatCurrency } from '../../utils/constants';
+import PriceDisplay from '../../components/ui/PriceDisplay';
 import Spinner from '../../components/ui/Spinner';
 import SEOHead from '../../components/seo/SEOHead';
 
@@ -138,10 +138,8 @@ export default function HomePage() {
                       <h3 className="font-display text-xl sm:text-2xl font-bold text-white">
                         {pkg[`name_${lang}`] || pkg.name_es}
                       </h3>
-                      <div className="mt-3 flex items-baseline gap-1">
-                        <span className="text-3xl sm:text-4xl font-bold text-white">
-                          {formatCurrency(pkg.price, pkg.currency)}
-                        </span>
+                      <div className="mt-3">
+                        <PriceDisplay pkg={pkg} variant="hero" />
                       </div>
                     </div>
 

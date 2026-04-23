@@ -66,8 +66,18 @@
     "clearAll": "Clear Cart",
     "summary": "Order Summary",
     "items": "{{count}} package(s)",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "tax": "Sales Tax (15%)",
     "proceedCheckout": "Proceed to Checkout",
     "backToCart": "Back to Cart"
+  },
+  "pricing": {
+    "off": "{{percent}}% OFF",
+    "save": "You save {{amount}}",
+    "seniorTier": "Senior (60+)",
+    "fourthAgeTier": "Fourth age (80+)",
+    "ageDiscountApplied": "Age discount applied"
   },
   "patient": {
     "title": "Patient Information",
@@ -272,6 +282,10 @@
       "includesEs": "Includes (Spanish, one per line)",
       "includesEn": "Includes (English, one per line)",
       "displayOrder": "Display Order",
+      "discountPercentage": "Discount (%)",
+      "discountHelp": "Between 0 and 100. Applied to the price when added to cart.",
+      "seniorDiscountLabel": "Enable senior / fourth-age discount",
+      "seniorDiscountHelp": "When enabled, entering the patient's date of birth at checkout automatically applies 25% (60+) or 30% (80+). The higher of this discount and the package's base discount is used.",
       "active": "Active",
       "inactive": "Inactive",
       "toggleActive": "Toggle Status",

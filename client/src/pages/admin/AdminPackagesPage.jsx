@@ -7,12 +7,12 @@ import {
   updatePackage,
   togglePackage,
 } from '../../services/admin.service';
-import { formatCurrency } from '../../utils/constants';
 import SEOHead from '../../components/seo/SEOHead';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
 import Input from '../../components/ui/Input';
 import Table from '../../components/ui/Table';
+import PriceDisplay from '../../components/ui/PriceDisplay';
 import Spinner from '../../components/ui/Spinner';
 import toast from 'react-hot-toast';
 
@@ -26,6 +26,8 @@ const emptyForm = {
   includes_es: '',
   includes_en: '',
   display_order: 0,
+  discount_percentage: 0,
+  senior_discount_enabled: false,
 };
 
 export default function AdminPackagesPage() {
@@ -72,6 +74,8 @@ export default function AdminPackagesPage() {
       includes_es: (pkg.includes_es || []).join('\n'),
       includes_en: (pkg.includes_en || []).join('\n'),
       display_order: pkg.display_order || 0,
+      discount_percentage: pkg.discount_percentage ?? 0,
+      senior_discount_enabled: !!pkg.senior_discount_enabled,
     });
     setShowModal(true);
   }
@@ -81,6 +85,8 @@ export default function AdminPackagesPage() {
       ...form,
       price: parseFloat(form.price),
       display_order: parseInt(form.display_order) || 0,
+      discount_percentage: Math.min(Math.max(parseFloat(form.discount_percentage) || 0, 0), 100),
+      senior_discount_enabled: !!form.senior_discount_enabled,
       includes_es: form.includes_es.split('\n').filter((s) => s.trim()),
       includes_en: form.includes_en.split('\n').filter((s) => s.trim()),
     };
@@ -139,7 +145,7 @@ export default function AdminPackagesPage() {
     id: pkg.id,
     cells: [
       <span className="font-medium text-slate-800">{pkg[`name_${lang}`] || pkg.name_es}</span>,
-      <span className="font-semibold text-slate-800">{formatCurrency(pkg.price, pkg.currency)}</span>,
+      <PriceDisplay pkg={pkg} variant="compact" />,
       <span className="text-slate-500">{pkg.display_order}</span>,
       <span
         className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
@@ -289,6 +295,41 @@ export default function AdminPackagesPage() {
               onChange={handleChange('display_order')}
               min="0"
             />
+          </div>
+
+          <div>
+            <Input
+              id="discount_percentage"
+              type="number"
+              label={t('admin.packages.discountPercentage')}
+              value={form.discount_percentage}
+              onChange={handleChange('discount_percentage')}
+              min="0"
+              max="100"
+              step="0.01"
+            />
+            <p className="text-xs text-slate-400 mt-1.5 font-body">
+              {t('admin.packages.discountHelp')}
+            </p>
+          </div>
+
+          <div className="bg-mint-50 border border-mint-100 rounded-xl p-4">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={!!form.senior_discount_enabled}
+                onChange={(e) => setForm({ ...form, senior_discount_enabled: e.target.checked })}
+                className="w-5 h-5 mt-0.5 rounded border-slate-300 text-mint-500 focus:ring-mint-500 cursor-pointer"
+              />
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-slate-800">
+                  {t('admin.packages.seniorDiscountLabel')}
+                </p>
+                <p className="text-xs text-slate-500 mt-1 font-body">
+                  {t('admin.packages.seniorDiscountHelp')}
+                </p>
+              </div>
+            </label>
           </div>
 
           <div>

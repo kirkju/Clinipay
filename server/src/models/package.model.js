@@ -68,10 +68,12 @@ const PackageModel = {
       .input('includes_es', sql.NVarChar(sql.MAX), data.includes_es || null)
       .input('includes_en', sql.NVarChar(sql.MAX), data.includes_en || null)
       .input('display_order', sql.Int, data.display_order || 0)
+      .input('discount_percentage', sql.Decimal(5, 2), data.discount_percentage || 0)
+      .input('senior_discount_enabled', sql.Bit, data.senior_discount_enabled ? 1 : 0)
       .query(`
-        INSERT INTO packages (name_es, name_en, description_es, description_en, price, currency, includes_es, includes_en, display_order)
+        INSERT INTO packages (name_es, name_en, description_es, description_en, price, currency, includes_es, includes_en, display_order, discount_percentage, senior_discount_enabled)
         OUTPUT INSERTED.*
-        VALUES (@name_es, @name_en, @description_es, @description_en, @price, @currency, @includes_es, @includes_en, @display_order)
+        VALUES (@name_es, @name_en, @description_es, @description_en, @price, @currency, @includes_es, @includes_en, @display_order, @discount_percentage, @senior_discount_enabled)
       `);
     return parseIncludes(result.recordset[0]);
   },
@@ -121,6 +123,14 @@ const PackageModel = {
     if (data.display_order !== undefined) {
       fields.push('display_order = @display_order');
       request.input('display_order', sql.Int, data.display_order);
+    }
+    if (data.discount_percentage !== undefined) {
+      fields.push('discount_percentage = @discount_percentage');
+      request.input('discount_percentage', sql.Decimal(5, 2), data.discount_percentage);
+    }
+    if (data.senior_discount_enabled !== undefined) {
+      fields.push('senior_discount_enabled = @senior_discount_enabled');
+      request.input('senior_discount_enabled', sql.Bit, data.senior_discount_enabled ? 1 : 0);
     }
 
     if (fields.length === 0) {

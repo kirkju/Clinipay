@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Package, CheckCircle, ShoppingCart } from 'lucide-react';
 import { getActivePackages } from '../../services/packages.service';
-import { formatCurrency } from '../../utils/constants';
+import { computePackagePricing } from '../../utils/constants';
 import { useCart } from '../../context/CartContext';
+import PriceDisplay from '../../components/ui/PriceDisplay';
 import Spinner from '../../components/ui/Spinner';
 import SEOHead from '../../components/seo/SEOHead';
 import toast from 'react-hot-toast';
@@ -56,21 +57,24 @@ export default function CatalogPage() {
     name: 'Paquetes Médicos',
     description: 'Catálogo de paquetes médicos disponibles en CLINIPAY',
     numberOfItems: packages.length,
-    itemListElement: packages.map((pkg, idx) => ({
-      '@type': 'ListItem',
-      position: idx + 1,
-      item: {
-        '@type': 'Product',
-        name: pkg[`name_${lang}`] || pkg.name_es,
-        description: pkg[`description_${lang}`] || pkg.description_es,
-        offers: {
-          '@type': 'Offer',
-          price: String(pkg.price),
-          priceCurrency: pkg.currency || 'USD',
-          availability: 'https://schema.org/InStock',
+    itemListElement: packages.map((pkg, idx) => {
+      const { net } = computePackagePricing(pkg);
+      return {
+        '@type': 'ListItem',
+        position: idx + 1,
+        item: {
+          '@type': 'Product',
+          name: pkg[`name_${lang}`] || pkg.name_es,
+          description: pkg[`description_${lang}`] || pkg.description_es,
+          offers: {
+            '@type': 'Offer',
+            price: String(net),
+            priceCurrency: pkg.currency || 'USD',
+            availability: 'https://schema.org/InStock',
+          },
         },
-      },
-    })),
+      };
+    }),
   };
 
   return (
@@ -110,17 +114,15 @@ export default function CatalogPage() {
             return (
               <div
                 key={pkg.id}
-                className="group bg-white rounded-2xl border border-slate-200 shadow-card hover:shadow-card-hover transition-all duration-300 ease-out hover:-translate-y-1 overflow-hidden flex flex-col"
+                className="group relative bg-white rounded-2xl border border-slate-200 shadow-card hover:shadow-card-hover transition-all duration-300 ease-out hover:-translate-y-1 overflow-hidden flex flex-col"
               >
                 {/* Header gradient */}
                 <div className="bg-gradient-to-br from-mint-400 to-mint-600 px-5 py-6 sm:px-6 sm:py-8">
                   <h3 className="font-display text-xl sm:text-2xl font-bold text-white">
                     {pkg[`name_${lang}`] || pkg.name_es}
                   </h3>
-                  <div className="mt-3 flex items-baseline gap-1">
-                    <span className="text-3xl sm:text-4xl font-bold text-white">
-                      {formatCurrency(pkg.price, pkg.currency)}
-                    </span>
+                  <div className="mt-3">
+                    <PriceDisplay pkg={pkg} variant="hero" />
                   </div>
                 </div>
 
